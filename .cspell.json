@@ -1,1 +1,3 @@
-{ "words": ["mfmt"] }
+{
+  "words": ["indoc", "lcov", "mfmt", "rustup", "wadler"]
+}
