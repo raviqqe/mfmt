@@ -1,5 +1,9 @@
-mod context;
-mod ir;
+mod build;
+mod document;
+mod format;
+mod utils;
 
-pub use context::Context;
-pub use ir::{build::*, count_lines, is_broken, Document};
+pub use build::*;
+pub use document::*;
+pub use format::*;
+pub use utils::*;

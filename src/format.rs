@@ -1,4 +1,4 @@
-use crate::ir::Document;
+use crate::document::Document;
 use std::iter::repeat;
 
 struct Context {
