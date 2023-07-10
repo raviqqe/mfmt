@@ -6,6 +6,16 @@
 
 Meta formatter library in Rust
 
+## Technical notes
+
+Unlike [the Wadler's algorithm][wadler] or some other formatters like prettier, `mfmt` does not search the best format given source codes. For example, we do not have any "group" combinator. Instead, we rather give `mfmt` information to reconstruct the "best" format that is available in the original source codes like Go.
+
+## References
+
+- [A prettier printer by Philip Wadler][wadler]
+
 ## License
 
 [The Unlicense](UNLICENSE)
+
+[wadler]: https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf
