@@ -12,7 +12,7 @@ Unlike [the Wadler's algorithm][wadler] or some other formatters like prettier, 
 
 ## References
 
-- [The Wadler's algorithm][wadler]
+- [A prettier printer by Philip Wadler][wadler]
 
 ## License
 
