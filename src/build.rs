@@ -17,7 +17,7 @@ pub fn flatten(document: impl Into<Document>) -> Document {
     Document::Break(false, document.into().into())
 }
 
-pub fn break_(document: impl Into<Document>) -> Document {
+pub fn r#break(document: impl Into<Document>) -> Document {
     Document::Break(true, document.into().into())
 }
 
