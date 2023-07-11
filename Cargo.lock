@@ -10,7 +10,7 @@ checksum = "761cde40c27e2a9877f8c928fd248b7eec9dd48623dd514b256858ca593fbba7"
 
 [[package]]
 name = "mfmt"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "indoc",
 ]
