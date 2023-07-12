@@ -1,4 +1,4 @@
-use super::{utils::is_broken, Document};
+use super::{utility::is_broken, Document};
 
 pub fn sequence<D: Into<Document>>(iterator: impl IntoIterator<Item = D>) -> Document {
     Document::Sequence(

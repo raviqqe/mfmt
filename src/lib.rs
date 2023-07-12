@@ -1,9 +1,8 @@
 mod build;
 mod document;
 mod format;
-mod utils;
+pub mod utility;
 
 pub use build::*;
 pub use document::*;
 pub use format::*;
-pub use utils::*;
