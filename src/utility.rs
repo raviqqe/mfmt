@@ -30,8 +30,8 @@ pub fn is_empty(document: &Document) -> bool {
         Document::Break(_, document) => is_empty(document),
         Document::Indent(document) => is_empty(document),
         Document::Sequence(documents) => documents.iter().all(is_empty),
-        Document::String(string) => string.is_empty(),
-        Document::Line | Document::LineSuffix(_) => false,
+        Document::LineSuffix(string) | Document::String(string) => string.is_empty(),
+        Document::Line => false,
     }
 }
 
