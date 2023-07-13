@@ -1,6 +1,8 @@
 use crate::document::Document;
 use std::iter::repeat;
 
+const INDENT: &str = "  ";
+
 struct Context {
     outputs: Vec<String>,
     // Omit extra indent output so that we do not need to remove them later.
@@ -64,7 +66,7 @@ fn format_line(context: &mut Context, level: usize) {
 fn flush(context: &mut Context) {
     context
         .outputs
-        .extend(repeat("  ".into()).take(context.next_level));
+        .extend(repeat(INDENT.into()).take(context.next_level));
     context.next_level = 0;
 }
 
