@@ -6,6 +6,13 @@
 
 Meta formatter library in Rust
 
+`mfmt` is a language formatter library written in Rust inspired by `go fmt`. It's designed to be (almost) configuration-free and generous about styling. What it is focused on is simply aligning indentations.
+
+This library is used in the following projects.
+
+- [Pen programming language](https://github.com/pen-lang/pen)
+- [`schemat`, the Scheme formatter](https://github.com/raviqqe/schemat)
+
 ## Technical notes
 
 Unlike [the Wadler's algorithm][wadler] or some other formatters like prettier, `mfmt` does not search the best format given source codes. For example, we do not have any "group" combinator. Instead, we rather give `mfmt` information to reconstruct the "best" format that is available in the original source codes like Go.
