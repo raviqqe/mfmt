@@ -8,7 +8,7 @@ Meta formatter library in Rust
 
 `mfmt` is a language formatter library written in Rust inspired by `go fmt`. It's designed to be (almost) configuration-free and generous about styling. What it is focused on is simply aligning indentations.
 
-`mfmt` is used in the following projects.
+This library is used in the following projects.
 
 - [Pen programming language](https://github.com/pen-lang/pen)
 - [`schemat`, the Scheme formatter](https://github.com/raviqqe/schemat)
