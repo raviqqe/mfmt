@@ -3,11 +3,11 @@ use std::iter::repeat;
 
 const INDENT: &str = "  ";
 
-struct Context {
-    outputs: Vec<String>,
+struct Context<'a> {
+    outputs: Vec<&'a str>,
     // Omit extra indent output so that we do not need to remove them later.
     next_level: usize,
-    line_suffixes: Vec<String>,
+    line_suffixes: Vec<&'a str>,
 }
 
 pub fn format(document: &Document) -> String {
@@ -22,7 +22,7 @@ pub fn format(document: &Document) -> String {
     context.outputs.concat()
 }
 
-fn format_document(context: &mut Context, document: &Document, level: usize, broken: bool) {
+fn format_document(context: &mut Context<'_>, document: &Document, level: usize, broken: bool) {
     match document {
         Document::Break(broken, document) => format_document(context, document, level, *broken),
         Document::Indent(document) => format_document(context, document, level + 1, broken),
@@ -30,7 +30,7 @@ fn format_document(context: &mut Context, document: &Document, level: usize, bro
             if broken {
                 format_line(context, level);
             } else {
-                context.outputs.extend([" ".into()]);
+                context.outputs.push(" ");
             }
         }
         Document::LineSuffix(suffix) => {
@@ -38,7 +38,7 @@ fn format_document(context: &mut Context, document: &Document, level: usize, bro
                 flush(context);
             }
 
-            context.line_suffixes.push(suffix.clone());
+            context.line_suffixes.push(suffix);
         }
         Document::Sequence(documents) => {
             for document in documents.as_ref() {
@@ -50,7 +50,7 @@ fn format_document(context: &mut Context, document: &Document, level: usize, bro
                 flush(context);
             }
 
-            context.outputs.push(string.clone());
+            context.outputs.push(string);
         }
     }
 }
@@ -66,7 +66,7 @@ fn format_line(context: &mut Context, level: usize) {
 fn flush(context: &mut Context) {
     context
         .outputs
-        .extend(repeat(INDENT.into()).take(context.next_level));
+        .extend(repeat(INDENT).take(context.next_level));
     context.next_level = 0;
 }
 
