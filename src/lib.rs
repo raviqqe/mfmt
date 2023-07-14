@@ -1,4 +1,6 @@
-#![feature(allocator_api, const_for)]
+#![no_std]
+
+extern crate alloc;
 
 mod build;
 mod document;

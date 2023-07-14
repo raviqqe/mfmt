@@ -1,5 +1,6 @@
 use crate::document::Document;
-use std::iter::repeat;
+use alloc::{string::String, vec, vec::Vec};
+use core::iter::repeat;
 
 const INDENT: &str = "  ";
 
@@ -78,7 +79,12 @@ fn flush(context: &mut Context) {
 #[cfg(test)]
 mod tests {
     use super::{super::build::*, *};
+    use alloc::boxed::Box;
     use indoc::indoc;
+
+    fn allocate<T>(value: T) -> &'static T {
+        Box::leak(Box::new(value))
+    }
 
     #[test]
     fn format_string() {
@@ -87,10 +93,6 @@ mod tests {
 
     mod group {
         use super::*;
-
-        fn allocate<T>(value: T) -> &'static T {
-            Box::leak(Box::new(value))
-        }
 
         fn create_group() -> Document<'static> {
             sequence(allocate([
