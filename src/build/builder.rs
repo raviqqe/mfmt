@@ -45,4 +45,12 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
 
         Vec::leak(vec)
     }
+
+    pub fn allocate_str<T>(&self, values: impl IntoIterator<Item = &str>) -> &'a str {
+        let mut vec = Vec::new_in(self.allocator.clone());
+
+        vec.extend(values);
+
+        Vec::leak(vec)
+    }
 }
