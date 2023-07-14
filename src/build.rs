@@ -4,7 +4,7 @@ pub const fn sequence<'a>(documents: &'a [Document<'a>]) -> Document<'a> {
     Document::Sequence(documents)
 }
 
-pub const fn line_suffix<'a>(string: &'a str) -> Document<'a> {
+pub const fn line_suffix(string: &str) -> Document<'_> {
     Document::LineSuffix(string)
 }
 
@@ -17,7 +17,7 @@ pub const fn r#break<'a>(document: &'a Document<'a>) -> Document<'a> {
 }
 
 pub fn flatten_if<'a>(condition: bool, document: &'a Document<'a>) -> Document<'a> {
-    Document::Break(!condition || is_broken(&document), document)
+    Document::Break(!condition || is_broken(document), document)
 }
 
 pub const fn indent<'a>(document: &'a Document<'a>) -> Document<'a> {

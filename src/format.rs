@@ -47,7 +47,7 @@ fn format_document<'a>(
             context.line_suffixes.push(suffix);
         }
         Document::Sequence(documents) => {
-            for document in documents.as_ref() {
+            for document in *documents {
                 format_document(context, document, level, broken);
             }
         }
@@ -64,7 +64,7 @@ fn format_document<'a>(
 fn format_line(context: &mut Context, level: usize) {
     context
         .outputs
-        .extend(context.line_suffixes.drain(..).chain(["\n".into()]));
+        .extend(context.line_suffixes.drain(..).chain(["\n"]));
 
     context.next_level = level;
 }
