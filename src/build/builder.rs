@@ -1,5 +1,5 @@
 use super::{flatten, indent, r#break, sequence, Document};
-use alloc::{alloc::Allocator, boxed::Box, vec::Vec};
+use alloc::{alloc::Allocator, boxed::Box, str, vec::Vec};
 
 #[derive(Clone, Debug)]
 pub struct Builder<A: Allocator> {
@@ -46,11 +46,13 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
         Vec::leak(vec)
     }
 
-    pub fn allocate_str<T>(&self, values: impl IntoIterator<Item = &str>) -> &'a str {
+    pub fn allocate_str<'b, T>(&self, values: impl IntoIterator<Item = &'b str>) -> &'a str {
         let mut vec = Vec::new_in(self.allocator.clone());
 
-        vec.extend(values);
+        for value in values {
+            vec.extend(value.as_bytes().iter().copied());
+        }
 
-        Vec::leak(vec)
+        str::from_utf8(Vec::leak(vec)).expect("utf-8 string")
     }
 }
