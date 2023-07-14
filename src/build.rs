@@ -1,4 +1,7 @@
+mod builder;
+
 use super::{utility::is_broken, Document};
+pub use builder::Builder;
 
 pub const fn sequence<'a>(documents: &'a [Document<'a>]) -> Document<'a> {
     Document::Sequence(documents)
