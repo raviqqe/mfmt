@@ -16,7 +16,7 @@ pub enum Document<'a> {
     Break(bool, &'a Document<'a>),
     Indent(&'a Document<'a>),
     Line,
-    LineSuffix(String),
+    LineSuffix(&'a str),
     Sequence(&'a [Document<'a>]),
     String(&'a str),
 }
