@@ -14,9 +14,9 @@ use std::rc::Rc;
 // (e.g. handling trailing commas in function calls)
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Document {
-    Break(bool, Rc<Document>),
-    Indent(Rc<Document>),
+pub enum Document<A> {
+    Break(bool, Rc<Document, A>),
+    Indent(Rc<Document<A>>),
     Line,
     LineSuffix(String),
     Sequence(Rc<[Document]>),
