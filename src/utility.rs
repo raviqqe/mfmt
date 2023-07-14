@@ -47,9 +47,9 @@ mod tests {
         assert!(!is_empty(&line()));
         assert!(is_empty(&line_suffix("")));
         assert!(!is_empty(&line_suffix("foo")));
-        assert!(is_empty(&indent("")));
-        assert!(!is_empty(&indent("foo")));
-        assert!(is_empty(&r#break("")));
-        assert!(!is_empty(&r#break("foo")));
+        assert!(is_empty(&indent(&"".into())));
+        assert!(!is_empty(&indent(&"foo".into())));
+        assert!(is_empty(&r#break(&"".into())));
+        assert!(!is_empty(&r#break(&"foo".into())));
     }
 }

@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 // https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf
 //
 // Unlike the Wadler's algorithm or some other formatters like prettier, we do
@@ -14,29 +12,23 @@ use std::rc::Rc;
 // (e.g. handling trailing commas in function calls)
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Document {
-    Break(bool, Rc<Document>),
-    Indent(Rc<Document>),
+pub enum Document<'a> {
+    Break(bool, &'a Document<'a>),
+    Indent(&'a Document<'a>),
     Line,
-    LineSuffix(String),
-    Sequence(Rc<[Document]>),
-    String(String),
+    LineSuffix(&'a str),
+    Sequence(&'a [Document<'a>]),
+    String(&'a str),
 }
 
-impl From<&str> for Document {
-    fn from(string: &str) -> Self {
-        Self::String(string.into())
-    }
-}
-
-impl From<String> for Document {
-    fn from(string: String) -> Self {
+impl<'a> From<&'a str> for Document<'a> {
+    fn from(string: &'a str) -> Self {
         Self::String(string)
     }
 }
 
-impl From<Vec<Self>> for Document {
-    fn from(documents: Vec<Self>) -> Self {
-        Self::Sequence(documents.into())
+impl<'a> From<&'a [Self]> for Document<'a> {
+    fn from(documents: &'a [Self]) -> Self {
+        Self::Sequence(documents)
     }
 }

@@ -1,40 +1,33 @@
 use super::{utility::is_broken, Document};
 
-pub fn sequence<D: Into<Document>>(iterator: impl IntoIterator<Item = D>) -> Document {
-    Document::Sequence(
-        iterator
-            .into_iter()
-            .map(|document| document.into())
-            .collect(),
-    )
+pub const fn sequence<'a>(documents: &'a [Document<'a>]) -> Document<'a> {
+    Document::Sequence(documents)
 }
 
-pub fn line_suffix(string: impl Into<String>) -> Document {
-    Document::LineSuffix(string.into())
+pub const fn line_suffix(string: &str) -> Document<'_> {
+    Document::LineSuffix(string)
 }
 
-pub fn flatten(document: impl Into<Document>) -> Document {
-    Document::Break(false, document.into().into())
+pub const fn flatten<'a>(document: &'a Document<'a>) -> Document<'a> {
+    Document::Break(false, document)
 }
 
-pub fn r#break(document: impl Into<Document>) -> Document {
-    Document::Break(true, document.into().into())
+pub const fn r#break<'a>(document: &'a Document<'a>) -> Document<'a> {
+    Document::Break(true, document)
 }
 
-pub fn flatten_if(condition: bool, document: impl Into<Document>) -> Document {
-    let document = document.into();
-
-    Document::Break(!condition || is_broken(&document), document.into())
+pub fn flatten_if<'a>(condition: bool, document: &'a Document<'a>) -> Document<'a> {
+    Document::Break(!condition || is_broken(document), document)
 }
 
-pub fn indent(document: impl Into<Document>) -> Document {
-    Document::Indent(document.into().into())
+pub const fn indent<'a>(document: &'a Document<'a>) -> Document<'a> {
+    Document::Indent(document)
 }
 
-pub const fn line() -> Document {
+pub const fn line() -> Document<'static> {
     Document::Line
 }
 
-pub fn empty() -> Document {
-    "".into()
+pub const fn empty() -> Document<'static> {
+    Document::String("")
 }
