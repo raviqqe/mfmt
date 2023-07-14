@@ -13,7 +13,7 @@ use std::rc::Rc;
 // parent nodes are broken or not. But that also makes IR more complex.
 // (e.g. handling trailing commas in function calls)
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Document {
     Break(bool, Rc<Document>),
     Indent(Rc<Document>),
