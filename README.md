@@ -23,6 +23,6 @@ Unlike [the Wadler's algorithm][wadler] or some other formatters like prettier, 
 
 ## License
 
-[The Unlicense](UNLICENSE)
+[The Unlicense](https://github.com/raviqqe/mfmt/blob/main/UNLICENSE)
 
 [wadler]: https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf
