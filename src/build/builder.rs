@@ -1,5 +1,5 @@
-use mfmt::{flatten, indent, r#break, sequence, Document};
-use std::alloc::Allocator;
+use super::{flatten, indent, r#break, sequence, Document};
+use alloc::{alloc::Allocator, boxed::Box, vec::Vec};
 
 #[derive(Clone, Debug)]
 pub struct Builder<A: Allocator> {
