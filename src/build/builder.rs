@@ -1,4 +1,4 @@
-use super::{flatten, indent, r#break, sequence, Document};
+use super::{flatten, indent, line_suffix, r#break, sequence, Document};
 use alloc::{alloc::Allocator, boxed::Box, str, vec::Vec};
 
 #[derive(Clone, Debug)]
@@ -34,6 +34,14 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
         r#break(self.allocate(value.into()))
     }
 
+    pub fn strings<'b>(&self, values: impl IntoIterator<Item = &'b str>) -> Document<'a> {
+        self.allocate_str(values).into()
+    }
+
+    pub fn line_suffixes<'b>(&self, values: impl IntoIterator<Item = &'b str>) -> Document<'a> {
+        line_suffix(self.allocate_str(values))
+    }
+
     pub fn allocate<T>(&self, value: T) -> &'a T {
         Box::leak(Box::new_in(value, self.allocator.clone()))
     }
@@ -46,7 +54,7 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
         Vec::leak(vec)
     }
 
-    pub fn allocate_str<'b, T>(&self, values: impl IntoIterator<Item = &'b str>) -> &'a str {
+    pub fn allocate_str<'b>(&self, values: impl IntoIterator<Item = &'b str>) -> &'a str {
         let mut vec = Vec::new_in(self.allocator.clone());
 
         for value in values {
