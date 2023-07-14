@@ -149,7 +149,12 @@ mod tests {
         #[test]
         fn format_line_suffix_between_strings() {
             assert_eq!(
-                format(&vec!["{".into(), line_suffix("foo"), "}".into(), line()].into()),
+                format(&sequence([
+                    "{".into(),
+                    line_suffix("foo"),
+                    "}".into(),
+                    line()
+                ])),
                 "{}foo\n",
             );
         }
@@ -157,16 +162,13 @@ mod tests {
         #[test]
         fn format_two_line_suffixes_between_strings() {
             assert_eq!(
-                format(
-                    &vec![
-                        "{".into(),
-                        line_suffix("foo"),
-                        line_suffix("bar"),
-                        "}".into(),
-                        line()
-                    ]
-                    .into()
-                ),
+                format(&sequence([
+                    "{".into(),
+                    line_suffix("foo"),
+                    line_suffix("bar"),
+                    "}".into(),
+                    line()
+                ])),
                 "{}foobar\n",
             );
         }
