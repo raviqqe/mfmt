@@ -1,4 +1,7 @@
-use std::rc::Rc;
+use std::{
+    alloc::{Allocator, Global},
+    rc::Rc,
+};
 
 // https://homepages.inf.ed.ac.uk/wadler/papers/prettier/prettier.pdf
 //
@@ -14,9 +17,9 @@ use std::rc::Rc;
 // (e.g. handling trailing commas in function calls)
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Document<A> {
-    Break(bool, Rc<Document, A>),
-    Indent(Rc<Document<A>>),
+pub enum Document<A: Allocator = Global> {
+    Break(bool, Rc<Document<A>, A>),
+    Indent(Rc<Document<A>, A>),
     Line,
     LineSuffix(String),
     Sequence(Rc<[Document]>),
