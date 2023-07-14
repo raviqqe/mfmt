@@ -1,3 +1,4 @@
+#![doc = include_str!("../README.md")]
 #![feature(allocator_api)]
 #![no_std]
 
