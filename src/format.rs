@@ -22,7 +22,12 @@ pub fn format(document: &Document) -> String {
     context.outputs.concat()
 }
 
-fn format_document(context: &mut Context<'_>, document: &Document, level: usize, broken: bool) {
+fn format_document<'a>(
+    context: &mut Context<'a>,
+    document: &Document<'a>,
+    level: usize,
+    broken: bool,
+) {
     match document {
         Document::Break(broken, document) => format_document(context, document, level, *broken),
         Document::Indent(document) => format_document(context, document, level + 1, broken),
@@ -83,13 +88,22 @@ mod tests {
     mod group {
         use super::*;
 
+        fn allocate<T>(value: T) -> &'static T {
+            Box::leak(Box::new(value))
+        }
+
         fn create_group() -> Document<'static> {
-            sequence(&[
+            sequence(allocate([
                 "{".into(),
-                indent(&sequence(&[line(), "foo".into(), line(), "bar".into()])),
+                indent(allocate(sequence(allocate([
+                    line(),
+                    "foo".into(),
+                    line(),
+                    "bar".into(),
+                ])))),
                 line(),
                 "}".into(),
-            ])
+            ]))
         }
 
         #[test]
