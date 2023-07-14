@@ -11,7 +11,7 @@
 // parent nodes are broken or not. But that also makes IR more complex.
 // (e.g. handling trailing commas in function calls)
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Document<'a> {
     Break(bool, &'a Document<'a>),
     Indent(&'a Document<'a>),
