@@ -83,24 +83,23 @@ mod tests {
     mod group {
         use super::*;
 
-        fn create_group() -> Document {
-            vec![
+        fn create_group() -> Document<'static> {
+            sequence(&[
                 "{".into(),
-                indent(vec![line(), "foo".into(), line(), "bar".into()]),
+                indent(&sequence(&[line(), "foo".into(), line(), "bar".into()])),
                 line(),
                 "}".into(),
-            ]
-            .into()
+            ])
         }
 
         #[test]
         fn format_flat_group() {
-            assert_eq!(format(&flatten(create_group())), "{ foo bar }");
+            assert_eq!(format(&flatten(&create_group())), "{ foo bar }");
         }
 
         #[test]
         fn format_empty_line_with_indent() {
-            assert_eq!(format(&indent(line())), "\n");
+            assert_eq!(format(&indent(&line())), "\n");
         }
 
         #[test]
@@ -122,15 +121,12 @@ mod tests {
         #[test]
         fn format_unbroken_group_in_broken_group() {
             assert_eq!(
-                format(
-                    &vec![
-                        "{".into(),
-                        indent(vec![line(), flatten(create_group())]),
-                        line(),
-                        "}".into(),
-                    ]
-                    .into()
-                ),
+                format(&sequence(&[
+                    "{".into(),
+                    indent(&sequence(&[line(), flatten(&create_group())])),
+                    line(),
+                    "}".into(),
+                ])),
                 indoc!(
                     "
                     {
@@ -149,7 +145,7 @@ mod tests {
         #[test]
         fn format_line_suffix_between_strings() {
             assert_eq!(
-                format(&sequence([
+                format(&sequence(&[
                     "{".into(),
                     line_suffix("foo"),
                     "}".into(),
@@ -162,7 +158,7 @@ mod tests {
         #[test]
         fn format_two_line_suffixes_between_strings() {
             assert_eq!(
-                format(&sequence([
+                format(&sequence(&[
                     "{".into(),
                     line_suffix("foo"),
                     line_suffix("bar"),

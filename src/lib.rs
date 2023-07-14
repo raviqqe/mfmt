@@ -1,4 +1,4 @@
-#![feature(allocator_api)]
+#![feature(allocator_api, const_for)]
 
 mod build;
 mod document;
