@@ -11,6 +11,13 @@ impl FormatOptions {
         Self { indent, space: ' ' }
     }
 
+    pub fn tab() -> Self {
+        Self {
+            indent: NonZeroUsize::new(1).unwrap(),
+            space: '\t',
+        }
+    }
+
     pub const fn indent(&self) -> NonZeroUsize {
         self.indent
     }

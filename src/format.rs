@@ -269,12 +269,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_tab() {
             assert_eq!(
-                format(
-                    &create_group(),
-                    default_options()
-                        .set_space('\t')
-                        .set_indent(NonZeroUsize::new(1).unwrap())
-                ),
+                format(&create_group(), FormatOptions::tab()),
                 indoc!(
                     "
                     {
