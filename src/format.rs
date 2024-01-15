@@ -1,4 +1,4 @@
-use crate::document::Document;
+use crate::{document::Document, FormatOptions};
 use alloc::{string::String, vec, vec::Vec};
 use core::iter::repeat;
 
@@ -10,6 +10,10 @@ struct Context<'a> {
 }
 
 pub fn format(document: &Document) -> String {
+    format_with_options(document, Default::default())
+}
+
+pub fn format_with_options(document: &Document, options: FormatOptions) -> String {
     let mut context = Context {
         outputs: vec![],
         next_level: 0,
