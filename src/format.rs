@@ -7,6 +7,7 @@ struct Context<'a> {
     // Omit extra indent output so that we do not need to remove them later.
     next_level: usize,
     line_suffixes: Vec<&'a str>,
+    options: FormatOptions,
 }
 
 pub fn format(document: &Document) -> String {
@@ -18,6 +19,7 @@ pub fn format_with_options(document: &Document, options: FormatOptions) -> Strin
         outputs: vec![],
         next_level: 0,
         line_suffixes: vec![],
+        options,
     };
 
     format_document(&mut context, document, 0, true);
