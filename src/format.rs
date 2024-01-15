@@ -91,7 +91,9 @@ mod tests {
     use alloc::boxed::Box;
     use indoc::indoc;
 
-    const DEFAULT_OPTIONS: FormatOptions = FormatOptions::new(NonZeroUsize::new(2).unwrap());
+    fn default_options() -> FormatOptions {
+        FormatOptions::new(NonZeroUsize::new(2).unwrap())
+    }
 
     fn allocate<T>(value: T) -> &'static T {
         Box::leak(Box::new(value))
@@ -99,7 +101,7 @@ mod tests {
 
     #[test]
     fn format_string() {
-        assert_eq!(format(&"foo".into(), DEFAULT_OPTIONS), "foo");
+        assert_eq!(format(&"foo".into(), default_options()), "foo");
     }
 
     mod group {
@@ -122,20 +124,20 @@ mod tests {
         #[test]
         fn format_flat_group() {
             assert_eq!(
-                format(&flatten(&create_group()), DEFAULT_OPTIONS),
+                format(&flatten(&create_group()), default_options()),
                 "{ foo bar }"
             );
         }
 
         #[test]
         fn format_empty_line_with_indent() {
-            assert_eq!(format(&indent(&line()), DEFAULT_OPTIONS), "\n");
+            assert_eq!(format(&indent(&line()), default_options()), "\n");
         }
 
         #[test]
         fn format_broken_group() {
             assert_eq!(
-                format(&create_group(), DEFAULT_OPTIONS),
+                format(&create_group(), default_options()),
                 indoc!(
                     "
                     {
@@ -158,7 +160,7 @@ mod tests {
                         line(),
                         "}".into(),
                     ]),
-                    DEFAULT_OPTIONS
+                    default_options()
                 ),
                 indoc!(
                     "
@@ -180,7 +182,7 @@ mod tests {
             assert_eq!(
                 format(
                     &sequence(&["{".into(), line_suffix("foo"), "}".into(), line()]),
-                    DEFAULT_OPTIONS
+                    default_options()
                 ),
                 "{}foo\n",
             );
@@ -197,7 +199,7 @@ mod tests {
                         "}".into(),
                         line()
                     ]),
-                    DEFAULT_OPTIONS
+                    default_options()
                 ),
                 "{}foobar\n",
             );
