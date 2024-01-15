@@ -2,8 +2,6 @@ use crate::document::Document;
 use alloc::{string::String, vec, vec::Vec};
 use core::iter::repeat;
 
-const INDENT: &str = "  ";
-
 struct Context<'a> {
     outputs: Vec<&'a str>,
     // Omit extra indent output so that we do not need to remove them later.
