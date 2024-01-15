@@ -4,7 +4,7 @@ use alloc::{
     vec,
     vec::Vec,
 };
-use core::iter::repeat;
+use core::{iter::repeat, num::NonZeroUsize};
 
 struct Context<'a> {
     outputs: Vec<&'a str>,
@@ -12,17 +12,17 @@ struct Context<'a> {
     next_level: usize,
     line_suffixes: Vec<&'a str>,
     space: &'a str,
-    options: FormatOptions,
+    indent: NonZeroUsize,
 }
 
 pub fn format(document: &Document, options: FormatOptions) -> String {
-    let space = options.space.to_string();
+    let space = options.space().to_string();
     let mut context = Context {
         outputs: vec![],
         next_level: 0,
         line_suffixes: vec![],
         space: &space,
-        options,
+        indent: options.indent(),
     };
 
     format_document(&mut context, document, 0, true);
@@ -79,7 +79,7 @@ fn format_line(context: &mut Context, level: usize) {
 fn flush(context: &mut Context) {
     context
         .outputs
-        .extend(repeat(context.space).take(context.next_level * context.options.indent));
+        .extend(repeat(context.space).take(context.next_level * context.indent.get()));
     context.next_level = 0;
 }
 
@@ -99,6 +99,20 @@ mod tests {
         Box::leak(Box::new(value))
     }
 
+    fn create_group() -> Document<'static> {
+        sequence(allocate([
+            "{".into(),
+            indent(allocate(sequence(allocate([
+                line(),
+                "foo".into(),
+                line(),
+                "bar".into(),
+            ])))),
+            line(),
+            "}".into(),
+        ]))
+    }
+
     #[test]
     fn format_string() {
         assert_eq!(format(&"foo".into(), default_options()), "foo");
@@ -106,20 +120,6 @@ mod tests {
 
     mod group {
         use super::*;
-
-        fn create_group() -> Document<'static> {
-            sequence(allocate([
-                "{".into(),
-                indent(allocate(sequence(allocate([
-                    line(),
-                    "foo".into(),
-                    line(),
-                    "bar".into(),
-                ])))),
-                line(),
-                "}".into(),
-            ]))
-        }
 
         #[test]
         fn format_flat_group() {
@@ -202,6 +202,67 @@ mod tests {
                     default_options()
                 ),
                 "{}foobar\n",
+            );
+        }
+    }
+
+    mod space {
+        use super::*;
+
+        #[test]
+        fn format_broken_group_with_space() {
+            assert_eq!(
+                format(
+                    &create_group(),
+                    default_options().set_indent(NonZeroUsize::new(1).unwrap())
+                ),
+                indoc!(
+                    "
+                    {
+                     foo
+                     bar
+                    }
+                    "
+                )
+                .trim(),
+            );
+        }
+
+        #[test]
+        fn format_broken_group_with_two_spaces() {
+            assert_eq!(
+                format(
+                    &create_group(),
+                    default_options().set_indent(NonZeroUsize::new(2).unwrap())
+                ),
+                indoc!(
+                    "
+                    {
+                      foo
+                      bar
+                    }
+                    "
+                )
+                .trim(),
+            );
+        }
+
+        #[test]
+        fn format_broken_group_with_four_spaces() {
+            assert_eq!(
+                format(
+                    &create_group(),
+                    default_options().set_indent(NonZeroUsize::new(4).unwrap())
+                ),
+                indoc!(
+                    "
+                    {
+                        foo
+                        bar
+                    }
+                    "
+                )
+                .trim(),
             );
         }
     }
