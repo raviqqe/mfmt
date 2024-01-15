@@ -1,19 +1,24 @@
-#[derive(Clone, Copy, Debug, Default)]
+use core::num::NonZeroUsize;
+
+#[derive(Clone, Copy, Debug)]
 pub struct FormatOptions {
     pub(crate) indent: usize,
     pub(crate) space: char,
 }
 
 impl FormatOptions {
-    pub fn new() -> Self {
-        Self::default()
+    pub const fn new(indent: NonZeroUsize) -> Self {
+        Self {
+            indent: indent.into(),
+            space: ' ',
+        }
     }
 
-    pub fn indent(self, space: char) -> Self {
+    pub const fn indent(self, space: char) -> Self {
         Self { space, ..self }
     }
 
-    pub fn space(self, space: char) -> Self {
+    pub const fn space(self, space: char) -> Self {
         Self { space, ..self }
     }
 }
