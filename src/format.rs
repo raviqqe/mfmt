@@ -43,7 +43,12 @@ fn format_document<'a>(
         }
         Document::Line => {
             if broken {
-                format_line(context, indent)?;
+                for string in context.line_suffixes.drain(..).chain(["\n"]) {
+                    context.writer.write_str(string)?;
+                }
+
+                context.next_indent = indent;
+                context.column = 0;
             } else {
                 context.writer.write_char(' ')?;
                 context.column += 1;
@@ -70,17 +75,6 @@ fn format_document<'a>(
             context.column += 1;
         }
     }
-
-    Ok(())
-}
-
-fn format_line(context: &mut Context<impl Write>, indent: usize) -> fmt::Result {
-    for string in context.line_suffixes.drain(..).chain(["\n"]) {
-        context.writer.write_str(string)?;
-    }
-
-    context.next_indent = indent;
-    context.column = 0;
 
     Ok(())
 }
