@@ -19,6 +19,8 @@ pub enum Document<'a> {
     /// An indented document.
     Indent(&'a Document<'a>),
     /// A line.
+    ///
+    /// A formatter considers it as a space if a document is not broken.
     Line,
     /// A line suffix.
     LineSuffix(&'a str),
