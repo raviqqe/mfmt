@@ -8,10 +8,10 @@ use core::{
 struct Context<'a, W: Write> {
     writer: &'a mut W,
     column: usize,
-    next_level: usize,
+    indent: usize,
     line_suffixes: Vec<&'a str>,
     space: &'a str,
-    indent: usize,
+    unit_indent: usize,
 }
 
 /// Formats a document.
@@ -20,10 +20,10 @@ pub fn format(document: &Document, mut writer: impl Write, options: FormatOption
     let mut context = Context {
         writer: &mut writer,
         column: 0,
-        next_level: 0,
+        indent: 0,
         line_suffixes: vec![],
         space: &space,
-        indent: options.indent(),
+        unit_indent: options.indent(),
     };
 
     format_document(&mut context, document, 0, true)
@@ -37,7 +37,9 @@ fn format_document<'a>(
 ) -> fmt::Result {
     match document {
         Document::Break(broken, document) => format_document(context, document, level, *broken)?,
-        Document::Indent(document) => format_document(context, document, level + 1, broken)?,
+        Document::Indent(document) => {
+            format_document(context, document, level + context.unit_indent, broken)?
+        }
         Document::Line => {
             if broken {
                 format_line(context, level)?;
@@ -74,17 +76,17 @@ fn format_line(context: &mut Context<impl Write>, level: usize) -> fmt::Result {
         context.writer.write_str(string)?;
     }
 
-    context.next_level = level;
+    context.indent = level;
 
     Ok(())
 }
 
 fn flush(context: &mut Context<impl Write>) -> fmt::Result {
-    for string in repeat(context.space).take(context.next_level * context.indent) {
+    for string in repeat(context.space).take(context.indent) {
         context.writer.write_str(string)?;
     }
 
-    context.next_level = 0;
+    context.indent = 0;
 
     Ok(())
 }
