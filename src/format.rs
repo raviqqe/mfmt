@@ -46,10 +46,10 @@ fn format_document<'a>(
         }
         Document::LineSuffix(suffix) => {
             if !suffix.is_empty() {
-                flush(context);
+                flush(context)?;
             }
 
-            context.line_suffixes.push(suffix)?;
+            context.line_suffixes.push(suffix);
         }
         Document::Sequence(documents) => {
             for document in *documents {
@@ -58,7 +58,7 @@ fn format_document<'a>(
         }
         Document::String(string) => {
             if !string.is_empty() {
-                flush(context);
+                flush(context)?;
             }
 
             context.writer.write_str(string)?;
