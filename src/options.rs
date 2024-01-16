@@ -12,7 +12,7 @@ impl FormatOptions {
     }
 
     /// Creates options for indentation by tabs.
-    pub fn with_tabs() -> Self {
+    pub fn tab() -> Self {
         Self {
             indent: 1,
             space: '\t',

@@ -271,7 +271,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_tab() {
             assert_eq!(
-                format_to_string(&create_group(), FormatOptions::with_tabs()),
+                format_to_string(&create_group(), FormatOptions::tab()),
                 indoc!(
                     "
                     {
