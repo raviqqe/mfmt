@@ -1,28 +1,26 @@
-use core::num::NonZeroUsize;
-
 /// Format options.
 #[derive(Clone, Copy, Debug)]
 pub struct FormatOptions {
-    indent: NonZeroUsize,
+    indent: usize,
     space: char,
 }
 
 impl FormatOptions {
     /// Creates options.
-    pub const fn new(indent: NonZeroUsize) -> Self {
+    pub const fn new(indent: usize) -> Self {
         Self { indent, space: ' ' }
     }
 
     /// Creates options for indentation by tabs.
     pub fn tab() -> Self {
         Self {
-            indent: NonZeroUsize::new(1).unwrap(),
+            indent: 1,
             space: '\t',
         }
     }
 
     /// Returns an indent size.
-    pub const fn indent(&self) -> NonZeroUsize {
+    pub const fn indent(&self) -> usize {
         self.indent
     }
 
@@ -32,7 +30,7 @@ impl FormatOptions {
     }
 
     /// Sets an indent size.
-    pub const fn set_indent(self, indent: NonZeroUsize) -> Self {
+    pub const fn set_indent(self, indent: usize) -> Self {
         Self { indent, ..self }
     }
 

@@ -3,7 +3,6 @@ use alloc::{string::ToString, vec, vec::Vec};
 use core::{
     fmt::{self, Write},
     iter::repeat,
-    num::NonZeroUsize,
 };
 
 struct Context<'a, W: Write> {
@@ -12,7 +11,7 @@ struct Context<'a, W: Write> {
     next_level: usize,
     line_suffixes: Vec<&'a str>,
     space: &'a str,
-    indent: NonZeroUsize,
+    indent: usize,
 }
 
 /// Formats a document.
@@ -80,7 +79,7 @@ fn format_line(context: &mut Context<impl Write>, level: usize) -> fmt::Result {
 }
 
 fn flush(context: &mut Context<impl Write>) -> fmt::Result {
-    for string in repeat(context.space).take(context.next_level * context.indent.get()) {
+    for string in repeat(context.space).take(context.next_level * context.indent) {
         context.writer.write_str(string)?;
     }
 
@@ -97,7 +96,7 @@ mod tests {
     use indoc::indoc;
 
     fn default_options() -> FormatOptions {
-        FormatOptions::new(NonZeroUsize::new(2).unwrap())
+        FormatOptions::new(2)
     }
 
     fn allocate<T>(value: T) -> &'static T {
