@@ -10,8 +10,51 @@ Meta formatter library in Rust
 
 This library is used in the following projects.
 
-- [Pen programming language](https://github.com/pen-lang/pen)
 - [`schemat`, the Scheme formatter](https://github.com/raviqqe/schemat)
+- [Pen programming language](https://github.com/pen-lang/pen)
+
+## Install
+
+```sh
+cargo +nightly add mfmt
+```
+
+## Examples
+
+```rust
+use indoc::indoc;
+
+let mut string = String::new();
+
+format(
+    sequence(allocate([
+        "{".into(),
+        indent(allocate(sequence(allocate([
+            line(),
+            "foo".into(),
+            line(),
+            "bar".into(),
+        ])))),
+        line(),
+        "}".into(),
+    ])),
+    &mut string,
+    FormatOptions::new(4),
+).unwrap();
+
+assert_eq!(
+    string,
+    indoc!(
+        "
+        {
+            foo
+            bar
+        }
+        "
+    )
+    .trim(),
+);
+```
 
 ## Technical notes
 
