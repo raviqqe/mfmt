@@ -47,11 +47,11 @@ assert_eq!(
     string,
     indoc!(
         "
-    {
-        foo
-        bar
-    }
-    "
+        {
+            foo
+            bar
+        }
+        "
     )
     .trim(),
 );
