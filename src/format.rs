@@ -7,10 +7,10 @@ use core::{
 
 struct Context<'a, W: Write> {
     writer: &'a mut W,
-    indent: usize,
+    next_indent: usize,
     line_suffixes: Vec<&'a str>,
     space: &'a str,
-    unit_indent: usize,
+    indent: usize,
 }
 
 /// Formats a document.
@@ -18,10 +18,10 @@ pub fn format(document: &Document, mut writer: impl Write, options: FormatOption
     let space = options.space().to_string();
     let mut context = Context {
         writer: &mut writer,
-        indent: 0,
+        next_indent: 0,
         line_suffixes: vec![],
         space: &space,
-        unit_indent: options.indent(),
+        indent: options.indent(),
     };
 
     format_document(&mut context, document, 0, true)
@@ -30,17 +30,17 @@ pub fn format(document: &Document, mut writer: impl Write, options: FormatOption
 fn format_document<'a>(
     context: &mut Context<'a, impl Write>,
     document: &'a Document,
-    level: usize,
+    indent: usize,
     broken: bool,
 ) -> fmt::Result {
     match document {
-        Document::Break(broken, document) => format_document(context, document, level, *broken)?,
+        Document::Break(broken, document) => format_document(context, document, indent, *broken)?,
         Document::Indent(document) => {
-            format_document(context, document, level + context.unit_indent, broken)?
+            format_document(context, document, indent + context.indent, broken)?
         }
         Document::Line => {
             if broken {
-                format_line(context, level)?;
+                format_line(context, indent)?;
             } else {
                 context.writer.write_char(' ')?;
             }
@@ -54,7 +54,7 @@ fn format_document<'a>(
         }
         Document::Sequence(documents) => {
             for document in *documents {
-                format_document(context, document, level, broken)?;
+                format_document(context, document, indent, broken)?;
             }
         }
         Document::String(string) => {
@@ -69,22 +69,22 @@ fn format_document<'a>(
     Ok(())
 }
 
-fn format_line(context: &mut Context<impl Write>, level: usize) -> fmt::Result {
+fn format_line(context: &mut Context<impl Write>, indent: usize) -> fmt::Result {
     for string in context.line_suffixes.drain(..).chain(["\n"]) {
         context.writer.write_str(string)?;
     }
 
-    context.indent = level;
+    context.next_indent = indent;
 
     Ok(())
 }
 
 fn flush(context: &mut Context<impl Write>) -> fmt::Result {
-    for string in repeat(context.space).take(context.indent) {
+    for string in repeat(context.space).take(context.next_indent) {
         context.writer.write_str(string)?;
     }
 
-    context.indent = 0;
+    context.next_indent = 0;
 
     Ok(())
 }
