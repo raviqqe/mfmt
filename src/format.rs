@@ -7,7 +7,7 @@ use core::{
 
 struct Context<'a, W: Write> {
     writer: &'a mut W,
-    // Omit extra indent output so that we do not need to remove them later.
+    column: usize,
     next_level: usize,
     line_suffixes: Vec<&'a str>,
     space: &'a str,
@@ -19,6 +19,7 @@ pub fn format(document: &Document, mut writer: impl Write, options: FormatOption
     let space = options.space().to_string();
     let mut context = Context {
         writer: &mut writer,
+        column: 0,
         next_level: 0,
         line_suffixes: vec![],
         space: &space,
