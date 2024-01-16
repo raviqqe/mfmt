@@ -1,3 +1,5 @@
+//! Document builders.
+
 mod builder;
 
 use super::{utility::is_broken, Document};
