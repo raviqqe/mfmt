@@ -15,6 +15,7 @@ struct Context<'a, W: Write> {
     indent: NonZeroUsize,
 }
 
+/// Formats a document.
 pub fn format(document: &Document, mut writer: impl Write, options: FormatOptions) -> fmt::Result {
     let space = options.space().to_string();
     let mut context = Context {
