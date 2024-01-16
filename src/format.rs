@@ -72,7 +72,7 @@ fn format_document<'a>(
             }
 
             context.writer.write_str(string)?;
-            context.column += 1;
+            context.column += string.len();
         }
     }
 
