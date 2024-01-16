@@ -6,7 +6,7 @@
 
 Meta formatter library in Rust.
 
-`mfmt` is a language formatter library written in Rust inspired by `go fmt`. It's designed to be (almost) configuration-free and generous about styling. It simply focuses on aligning indentations.
+`mfmt` is a language formatter library written in Rust inspired by `go fmt`. It's designed to be configuration-free and generous about styling. It simply focuses on aligning indentations.
 
 This library is used in the following projects.
 
@@ -47,11 +47,11 @@ assert_eq!(
     string,
     indoc!(
         "
-    {
-        foo
-        bar
-    }
-    "
+        {
+            foo
+            bar
+        }
+        "
     )
     .trim(),
 );
@@ -59,7 +59,7 @@ assert_eq!(
 
 ## Technical notes
 
-Unlike [the Wadler's algorithm][wadler] or some other formatters like [prettier](https://prettier.io/), `mfmt` does not search the best format given source codes. For example, we do not have any "group" combinator. Instead, we rather give a formatter information to reconstruct the "best" format that is available in the original source codes like Go.
+Unlike [the Wadler's algorithm][wadler] or some other formatters like [prettier](https://prettier.io/), `mfmt` does not search the best format given source codes. For example, we do not have any "group" combinator. Instead, we rather give a formatter information to reconstruct the "best" format that is available in the original source codes.
 
 ## References
 
