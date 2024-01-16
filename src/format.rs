@@ -44,7 +44,6 @@ fn format_document<'a>(
         Document::Line => {
             if broken {
                 format_line(context, indent)?;
-                context.column = 0;
             } else {
                 context.writer.write_char(' ')?;
                 context.column += 1;
@@ -68,6 +67,7 @@ fn format_document<'a>(
             }
 
             context.writer.write_str(string)?;
+            context.column += 1;
         }
     }
 
@@ -80,6 +80,7 @@ fn format_line(context: &mut Context<impl Write>, indent: usize) -> fmt::Result 
     }
 
     context.next_indent = indent;
+    context.column = 0;
 
     Ok(())
 }
