@@ -20,7 +20,8 @@ pub enum Document<'a> {
     Indent(&'a Document<'a>),
     /// A line.
     ///
-    /// A formatter considers it as a space if a document is not broken.
+    /// A formatter considers it as a space if a document is not broken by
+    /// [`Break`](Document::Break).
     Line,
     /// A line suffix.
     LineSuffix(&'a str),
