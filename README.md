@@ -4,18 +4,62 @@
 [![Crate](https://img.shields.io/crates/v/mfmt.svg?style=flat-square)](https://crates.io/crates/mfmt)
 [![License](https://img.shields.io/github/license/raviqqe/mfmt.svg?style=flat-square)](https://github.com/raviqqe/mfmt/blob/main/UNLICENSE)
 
-Meta formatter library in Rust
+Meta formatter library in Rust.
 
-`mfmt` is a language formatter library written in Rust inspired by `go fmt`. It's designed to be (almost) configuration-free and generous about styling. What it is focused on is simply aligning indentations.
+`mfmt` is a language formatter library written in Rust inspired by `go fmt`. It's designed to be (almost) configuration-free and generous about styling. It simply focuses on aligning indentations.
 
 This library is used in the following projects.
 
-- [Pen programming language](https://github.com/pen-lang/pen)
 - [`schemat`, the Scheme formatter](https://github.com/raviqqe/schemat)
+- [Pen programming language](https://github.com/pen-lang/pen)
+
+## Install
+
+```sh
+cargo +nightly add mfmt
+```
+
+## Examples
+
+```rust
+#![feature(allocator_api)]
+
+use indoc::indoc;
+use mfmt::{Builder, format, FormatOptions, line};
+use std::alloc::Global;
+
+let builder = Builder::new(Global);
+let mut string = String::new();
+
+format(
+    &builder.sequence([
+        "{".into(),
+        builder.indent(builder.sequence([line(), "foo".into(), line(), "bar".into()])),
+        line(),
+        "}".into(),
+    ]),
+    &mut string,
+    FormatOptions::new(4),
+)
+.unwrap();
+
+assert_eq!(
+    string,
+    indoc!(
+        "
+    {
+        foo
+        bar
+    }
+    "
+    )
+    .trim(),
+);
+```
 
 ## Technical notes
 
-Unlike [the Wadler's algorithm][wadler] or some other formatters like prettier, `mfmt` does not search the best format given source codes. For example, we do not have any "group" combinator. Instead, we rather give `mfmt` information to reconstruct the "best" format that is available in the original source codes like Go.
+Unlike [the Wadler's algorithm][wadler] or some other formatters like [prettier](https://prettier.io/), `mfmt` does not search the best format given source codes. For example, we do not have any "group" combinator. Instead, we rather give a formatter information to reconstruct the "best" format that is available in the original source codes like Go.
 
 ## References
 
