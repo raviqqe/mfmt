@@ -22,35 +22,36 @@ cargo +nightly add mfmt
 ## Examples
 
 ```rust
-use indoc::indoc;
+#![feature(allocator_api)]
 
+use indoc::indoc;
+use mfmt::{Builder, format, FormatOptions, line};
+use std::alloc::Global;
+
+let builder = Builder::new(Global);
 let mut string = String::new();
 
 format(
-    sequence(allocate([
+    &builder.sequence([
         "{".into(),
-        indent(allocate(sequence(allocate([
-            line(),
-            "foo".into(),
-            line(),
-            "bar".into(),
-        ])))),
+        builder.indent(builder.sequence([line(), "foo".into(), line(), "bar".into()])),
         line(),
         "}".into(),
-    ])),
+    ]),
     &mut string,
     FormatOptions::new(4),
-).unwrap();
+)
+.unwrap();
 
 assert_eq!(
     string,
     indoc!(
         "
-        {
-            foo
-            bar
-        }
-        "
+    {
+        foo
+        bar
+    }
+    "
     )
     .trim(),
 );
