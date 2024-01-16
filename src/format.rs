@@ -7,7 +7,6 @@ use core::{
 
 struct Context<'a, W: Write> {
     writer: &'a mut W,
-    column: usize,
     indent: usize,
     line_suffixes: Vec<&'a str>,
     space: &'a str,
@@ -19,7 +18,6 @@ pub fn format(document: &Document, mut writer: impl Write, options: FormatOption
     let space = options.space().to_string();
     let mut context = Context {
         writer: &mut writer,
-        column: 0,
         indent: 0,
         line_suffixes: vec![],
         space: &space,
