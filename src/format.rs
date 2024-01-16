@@ -2,7 +2,8 @@ use crate::{document::Document, FormatOptions};
 use alloc::{string::ToString, vec, vec::Vec};
 use core::{fmt::Write, iter::repeat, num::NonZeroUsize};
 
-struct Context<'a> {
+struct Context<'a, W: Write> {
+    writer: &'a mut W,
     // Omit extra indent output so that we do not need to remove them later.
     next_level: usize,
     line_suffixes: Vec<&'a str>,
@@ -13,32 +14,30 @@ struct Context<'a> {
 pub fn format(document: &Document, mut writer: impl Write, options: FormatOptions) {
     let space = options.space().to_string();
     let mut context = Context {
+        writer: &mut writer,
         next_level: 0,
         line_suffixes: vec![],
         space: &space,
         indent: options.indent(),
     };
 
-    format_document(&mut context, document, 0, true, &mut writer);
+    format_document(&mut context, document, 0, true);
 }
 
 fn format_document<'a>(
-    context: &mut Context<'a>,
-    document: &Document<'a>,
+    context: &mut Context<'a, impl Write>,
+    document: &'a Document,
     level: usize,
     broken: bool,
-    writer: &mut impl Write,
 ) {
     match document {
-        Document::Break(broken, document) => {
-            format_document(context, document, level, *broken, writer)
-        }
-        Document::Indent(document) => format_document(context, document, level + 1, broken, writer),
+        Document::Break(broken, document) => format_document(context, document, level, *broken),
+        Document::Indent(document) => format_document(context, document, level + 1, broken),
         Document::Line => {
             if broken {
                 format_line(context, level);
             } else {
-                writer.write_char(' ');
+                context.writer.write_char(' ');
             }
         }
         Document::LineSuffix(suffix) => {
@@ -50,7 +49,7 @@ fn format_document<'a>(
         }
         Document::Sequence(documents) => {
             for document in *documents {
-                format_document(context, document, level, broken, writer);
+                format_document(context, document, level, broken);
             }
         }
         Document::String(string) => {
@@ -58,23 +57,24 @@ fn format_document<'a>(
                 flush(context);
             }
 
-            writer.write_str(string);
+            context.writer.write_str(string);
         }
     }
 }
 
-fn format_line(context: &mut Context, level: usize, writer: &mut impl Write) {
+fn format_line(context: &mut Context<impl Write>, level: usize) {
     for string in context.line_suffixes.drain(..).chain(["\n"]) {
-        writer.write_str(string);
+        context.writer.write_str(string);
     }
 
     context.next_level = level;
 }
 
-fn flush(context: &mut Context) {
-    context
-        .outputs
-        .extend(repeat(context.space).take(context.next_level * context.indent.get()));
+fn flush(context: &mut Context<impl Write>) {
+    for string in repeat(context.space).take(context.next_level * context.indent.get()) {
+        context.writer.write_str(string);
+    }
+
     context.next_level = 0;
 }
 
