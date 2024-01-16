@@ -7,6 +7,7 @@ use core::{
 
 struct Context<'a, W: Write> {
     writer: &'a mut W,
+    column: usize,
     next_indent: usize,
     line_suffixes: Vec<&'a str>,
     space: &'a str,
@@ -18,6 +19,7 @@ pub fn format(document: &Document, mut writer: impl Write, options: FormatOption
     let space = options.space().to_string();
     let mut context = Context {
         writer: &mut writer,
+        column: 0,
         next_indent: 0,
         line_suffixes: vec![],
         space: &space,
@@ -36,13 +38,16 @@ fn format_document<'a>(
     match document {
         Document::Break(broken, document) => format_document(context, document, indent, *broken)?,
         Document::Indent(document) => {
-            format_document(context, document, indent + context.indent, broken)?
+            context.column += context.indent;
+            format_document(context, document, indent + context.indent, broken)?;
         }
         Document::Line => {
             if broken {
                 format_line(context, indent)?;
+                context.column = 0;
             } else {
                 context.writer.write_char(' ')?;
+                context.column += 1;
             }
         }
         Document::LineSuffix(suffix) => {
