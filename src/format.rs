@@ -1,98 +1,101 @@
 use crate::{document::Document, FormatOptions};
-use alloc::{
-    string::{String, ToString},
-    vec,
-    vec::Vec,
+use alloc::{string::ToString, vec, vec::Vec};
+use core::{
+    fmt::{self, Write},
+    iter::repeat,
 };
-use core::{iter::repeat, num::NonZeroUsize};
 
-struct Context<'a> {
-    outputs: Vec<&'a str>,
+struct Context<'a, W: Write> {
+    writer: &'a mut W,
     // Omit extra indent output so that we do not need to remove them later.
     next_level: usize,
     line_suffixes: Vec<&'a str>,
     space: &'a str,
-    indent: NonZeroUsize,
+    indent: usize,
 }
 
-pub fn format(document: &Document, options: FormatOptions) -> String {
+/// Formats a document.
+pub fn format(document: &Document, mut writer: impl Write, options: FormatOptions) -> fmt::Result {
     let space = options.space().to_string();
     let mut context = Context {
-        outputs: vec![],
+        writer: &mut writer,
         next_level: 0,
         line_suffixes: vec![],
         space: &space,
         indent: options.indent(),
     };
 
-    format_document(&mut context, document, 0, true);
-
-    context.outputs.concat()
+    format_document(&mut context, document, 0, true)
 }
 
 fn format_document<'a>(
-    context: &mut Context<'a>,
-    document: &Document<'a>,
+    context: &mut Context<'a, impl Write>,
+    document: &'a Document,
     level: usize,
     broken: bool,
-) {
+) -> fmt::Result {
     match document {
-        Document::Break(broken, document) => format_document(context, document, level, *broken),
-        Document::Indent(document) => format_document(context, document, level + 1, broken),
+        Document::Break(broken, document) => format_document(context, document, level, *broken)?,
+        Document::Indent(document) => format_document(context, document, level + 1, broken)?,
         Document::Line => {
             if broken {
-                format_line(context, level);
+                format_line(context, level)?;
             } else {
-                context.outputs.push(" ");
+                context.writer.write_char(' ')?;
             }
         }
         Document::LineSuffix(suffix) => {
             if !suffix.is_empty() {
-                flush(context);
+                flush(context)?;
             }
 
             context.line_suffixes.push(suffix);
         }
         Document::Sequence(documents) => {
             for document in *documents {
-                format_document(context, document, level, broken);
+                format_document(context, document, level, broken)?;
             }
         }
         Document::String(string) => {
             if !string.is_empty() {
-                flush(context);
+                flush(context)?;
             }
 
-            context.outputs.push(string);
+            context.writer.write_str(string)?;
         }
     }
+
+    Ok(())
 }
 
-fn format_line(context: &mut Context, level: usize) {
-    context
-        .outputs
-        .extend(context.line_suffixes.drain(..).chain(["\n"]));
+fn format_line(context: &mut Context<impl Write>, level: usize) -> fmt::Result {
+    for string in context.line_suffixes.drain(..).chain(["\n"]) {
+        context.writer.write_str(string)?;
+    }
 
     context.next_level = level;
+
+    Ok(())
 }
 
-fn flush(context: &mut Context) {
-    context
-        .outputs
-        .extend(repeat(context.space).take(context.next_level * context.indent.get()));
+fn flush(context: &mut Context<impl Write>) -> fmt::Result {
+    for string in repeat(context.space).take(context.next_level * context.indent) {
+        context.writer.write_str(string)?;
+    }
+
     context.next_level = 0;
+
+    Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    use core::num::NonZeroUsize;
-
     use super::{super::build::*, *};
-    use alloc::boxed::Box;
+    use alloc::{boxed::Box, string::String};
     use indoc::indoc;
 
     fn default_options() -> FormatOptions {
-        FormatOptions::new(NonZeroUsize::new(2).unwrap())
+        FormatOptions::new(2)
     }
 
     fn allocate<T>(value: T) -> &'static T {
@@ -113,9 +116,17 @@ mod tests {
         ]))
     }
 
+    fn format_to_string(document: &Document, options: FormatOptions) -> String {
+        let mut string = String::new();
+
+        format(document, &mut string, options).unwrap();
+
+        string
+    }
+
     #[test]
     fn format_string() {
-        assert_eq!(format(&"foo".into(), default_options()), "foo");
+        assert_eq!(format_to_string(&"foo".into(), default_options()), "foo");
     }
 
     mod group {
@@ -124,20 +135,20 @@ mod tests {
         #[test]
         fn format_flat_group() {
             assert_eq!(
-                format(&flatten(&create_group()), default_options()),
+                format_to_string(&flatten(&create_group()), default_options()),
                 "{ foo bar }"
             );
         }
 
         #[test]
         fn format_empty_line_with_indent() {
-            assert_eq!(format(&indent(&line()), default_options()), "\n");
+            assert_eq!(format_to_string(&indent(&line()), default_options()), "\n");
         }
 
         #[test]
         fn format_broken_group() {
             assert_eq!(
-                format(&create_group(), default_options()),
+                format_to_string(&create_group(), default_options()),
                 indoc!(
                     "
                     {
@@ -153,7 +164,7 @@ mod tests {
         #[test]
         fn format_unbroken_group_in_broken_group() {
             assert_eq!(
-                format(
+                format_to_string(
                     &sequence(&[
                         "{".into(),
                         indent(&sequence(&[line(), flatten(&create_group())])),
@@ -180,7 +191,7 @@ mod tests {
         #[test]
         fn format_line_suffix_between_strings() {
             assert_eq!(
-                format(
+                format_to_string(
                     &sequence(&["{".into(), line_suffix("foo"), "}".into(), line()]),
                     default_options()
                 ),
@@ -191,7 +202,7 @@ mod tests {
         #[test]
         fn format_two_line_suffixes_between_strings() {
             assert_eq!(
-                format(
+                format_to_string(
                     &sequence(&[
                         "{".into(),
                         line_suffix("foo"),
@@ -212,10 +223,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_space() {
             assert_eq!(
-                format(
-                    &create_group(),
-                    default_options().set_indent(NonZeroUsize::new(1).unwrap())
-                ),
+                format_to_string(&create_group(), default_options().set_indent(1)),
                 indoc!(
                     "
                     {
@@ -231,10 +239,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_two_spaces() {
             assert_eq!(
-                format(
-                    &create_group(),
-                    default_options().set_indent(NonZeroUsize::new(2).unwrap())
-                ),
+                format_to_string(&create_group(), default_options().set_indent(2)),
                 indoc!(
                     "
                     {
@@ -250,10 +255,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_four_spaces() {
             assert_eq!(
-                format(
-                    &create_group(),
-                    default_options().set_indent(NonZeroUsize::new(4).unwrap())
-                ),
+                format_to_string(&create_group(), default_options().set_indent(4)),
                 indoc!(
                     "
                     {
@@ -269,7 +271,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_tab() {
             assert_eq!(
-                format(&create_group(), FormatOptions::tab()),
+                format_to_string(&create_group(), FormatOptions::tab()),
                 indoc!(
                     "
                     {

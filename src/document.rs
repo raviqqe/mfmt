@@ -11,13 +11,23 @@
 // parent nodes are broken or not. But that also makes IR more complex.
 // (e.g. handling trailing commas in function calls)
 
+/// A document.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Document<'a> {
+    /// A document broken into multiple lines.
     Break(bool, &'a Document<'a>),
+    /// An indented document.
     Indent(&'a Document<'a>),
+    /// A line.
+    ///
+    /// A formatter considers it as a space if a document is not broken by
+    /// [`Break`](Document::Break).
     Line,
+    /// A line suffix.
     LineSuffix(&'a str),
+    /// A sequence of documents.
     Sequence(&'a [Document<'a>]),
+    /// A string.
     String(&'a str),
 }
 

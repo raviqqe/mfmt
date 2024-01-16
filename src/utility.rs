@@ -1,5 +1,8 @@
+//! Utilities.
+
 use super::Document;
 
+/// Checks if a document is broken into multiple lines.
 pub fn is_broken(document: &Document) -> bool {
     match document {
         Document::Break(broken, _) => *broken,
@@ -9,6 +12,7 @@ pub fn is_broken(document: &Document) -> bool {
     }
 }
 
+/// Counts lines in a document.
 pub fn count_lines(document: &Document) -> usize {
     match document {
         Document::Break(broken, document) => {
@@ -25,6 +29,7 @@ pub fn count_lines(document: &Document) -> usize {
     }
 }
 
+/// Checks if a document is empty.
 pub fn is_empty(document: &Document) -> bool {
     match document {
         Document::Break(_, document) => is_empty(document),
