@@ -6,13 +6,13 @@ pub struct FormatOptions {
 }
 
 impl FormatOptions {
-    /// Creates options.
+    /// Creates options for indentation by spaces.
     pub const fn new(indent: usize) -> Self {
         Self { indent, space: ' ' }
     }
 
     /// Creates options for indentation by tabs.
-    pub fn tab() -> Self {
+    pub fn with_tabs() -> Self {
         Self {
             indent: 1,
             space: '\t',

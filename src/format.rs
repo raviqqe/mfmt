@@ -92,7 +92,6 @@ fn flush(context: &mut Context<impl Write>) -> fmt::Result {
 mod tests {
     use super::{super::build::*, *};
     use alloc::{boxed::Box, string::String};
-    use core::num::NonZeroUsize;
     use indoc::indoc;
 
     fn default_options() -> FormatOptions {
@@ -224,10 +223,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_space() {
             assert_eq!(
-                format_to_string(
-                    &create_group(),
-                    default_options().set_indent(NonZeroUsize::new(1).unwrap())
-                ),
+                format_to_string(&create_group(), default_options().set_indent(1)),
                 indoc!(
                     "
                     {
@@ -243,10 +239,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_two_spaces() {
             assert_eq!(
-                format_to_string(
-                    &create_group(),
-                    default_options().set_indent(NonZeroUsize::new(2).unwrap())
-                ),
+                format_to_string(&create_group(), default_options().set_indent(2)),
                 indoc!(
                     "
                     {
@@ -262,10 +255,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_four_spaces() {
             assert_eq!(
-                format_to_string(
-                    &create_group(),
-                    default_options().set_indent(NonZeroUsize::new(4).unwrap())
-                ),
+                format_to_string(&create_group(), default_options().set_indent(4)),
                 indoc!(
                     "
                     {
@@ -281,7 +271,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_tab() {
             assert_eq!(
-                format_to_string(&create_group(), FormatOptions::tab()),
+                format_to_string(&create_group(), FormatOptions::with_tabs()),
                 indoc!(
                     "
                     {
