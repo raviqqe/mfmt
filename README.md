@@ -15,7 +15,7 @@ This library is used in the following projects.
 
 ## Technical notes
 
-Unlike [the Wadler's algorithm][wadler] or some other formatters like prettier, `mfmt` does not search the best format given source codes. For example, we do not have any "group" combinator. Instead, we rather give `mfmt` information to reconstruct the "best" format that is available in the original source codes like Go.
+Unlike [the Wadler's algorithm][wadler] or some other formatters like [prettier](https://prettier.io/), `mfmt` does not search the best format given source codes. For example, we do not have any "group" combinator. Instead, we rather give `mfmt` information to reconstruct the "best" format that is available in the original source codes like Go.
 
 ## References
 
