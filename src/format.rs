@@ -90,10 +90,9 @@ fn flush(context: &mut Context<impl Write>) -> fmt::Result {
 
 #[cfg(test)]
 mod tests {
-    use core::num::NonZeroUsize;
-
     use super::{super::build::*, *};
-    use alloc::boxed::Box;
+    use alloc::{boxed::Box, string::String};
+    use core::num::NonZeroUsize;
     use indoc::indoc;
 
     fn default_options() -> FormatOptions {
@@ -118,9 +117,17 @@ mod tests {
         ]))
     }
 
+    fn format_to_string(document: &Document, options: FormatOptions) -> String {
+        let mut string = String::new();
+
+        format(document, &mut string, options).unwrap();
+
+        string
+    }
+
     #[test]
     fn format_string() {
-        assert_eq!(format(&"foo".into(), default_options()), "foo");
+        assert_eq!(format_to_string(&"foo".into(), default_options()), "foo");
     }
 
     mod group {
@@ -129,20 +136,20 @@ mod tests {
         #[test]
         fn format_flat_group() {
             assert_eq!(
-                format(&flatten(&create_group()), default_options()),
+                format_to_string(&flatten(&create_group()), default_options()),
                 "{ foo bar }"
             );
         }
 
         #[test]
         fn format_empty_line_with_indent() {
-            assert_eq!(format(&indent(&line()), default_options()), "\n");
+            assert_eq!(format_to_string(&indent(&line()), default_options()), "\n");
         }
 
         #[test]
         fn format_broken_group() {
             assert_eq!(
-                format(&create_group(), default_options()),
+                format_to_string(&create_group(), default_options()),
                 indoc!(
                     "
                     {
@@ -158,7 +165,7 @@ mod tests {
         #[test]
         fn format_unbroken_group_in_broken_group() {
             assert_eq!(
-                format(
+                format_to_string(
                     &sequence(&[
                         "{".into(),
                         indent(&sequence(&[line(), flatten(&create_group())])),
@@ -185,7 +192,7 @@ mod tests {
         #[test]
         fn format_line_suffix_between_strings() {
             assert_eq!(
-                format(
+                format_to_string(
                     &sequence(&["{".into(), line_suffix("foo"), "}".into(), line()]),
                     default_options()
                 ),
@@ -196,7 +203,7 @@ mod tests {
         #[test]
         fn format_two_line_suffixes_between_strings() {
             assert_eq!(
-                format(
+                format_to_string(
                     &sequence(&[
                         "{".into(),
                         line_suffix("foo"),
@@ -217,7 +224,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_space() {
             assert_eq!(
-                format(
+                format_to_string(
                     &create_group(),
                     default_options().set_indent(NonZeroUsize::new(1).unwrap())
                 ),
@@ -236,7 +243,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_two_spaces() {
             assert_eq!(
-                format(
+                format_to_string(
                     &create_group(),
                     default_options().set_indent(NonZeroUsize::new(2).unwrap())
                 ),
@@ -255,7 +262,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_four_spaces() {
             assert_eq!(
-                format(
+                format_to_string(
                     &create_group(),
                     default_options().set_indent(NonZeroUsize::new(4).unwrap())
                 ),
@@ -274,7 +281,7 @@ mod tests {
         #[test]
         fn format_broken_group_with_tab() {
             assert_eq!(
-                format(&create_group(), FormatOptions::tab()),
+                format_to_string(&create_group(), FormatOptions::tab()),
                 indoc!(
                     "
                     {
