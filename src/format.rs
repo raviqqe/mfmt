@@ -38,7 +38,6 @@ fn format_document<'a>(
     match document {
         Document::Break(broken, document) => format_document(context, document, indent, *broken)?,
         Document::Indent(document) => {
-            context.column += context.indent;
             format_document(context, document, indent + context.indent, broken)?;
         }
         Document::Line => {
@@ -62,8 +61,16 @@ fn format_document<'a>(
             context.line_suffixes.push(suffix);
         }
         Document::Offside(document) => {
-            context.next_indent = context.column;
-            format_document(context, document, indent, broken)?;
+            #[cfg(test)]
+            extern crate std;
+            #[cfg(test)]
+            std::dbg!(indent, context.column, context.next_indent);
+            format_document(
+                context,
+                document,
+                if broken { indent } else { context.column },
+                broken,
+            )?;
         }
         Document::Sequence(documents) => {
             for document in *documents {
@@ -87,6 +94,7 @@ fn flush(context: &mut Context<impl Write>) -> fmt::Result {
     // Flush an indent lazily.
     for string in repeat(context.space).take(context.next_indent) {
         context.writer.write_str(string)?;
+        context.column = string.len();
     }
 
     // Do not render any indent until the next newline.
@@ -220,6 +228,54 @@ mod tests {
                     default_options()
                 ),
                 "{}foobar\n",
+            );
+        }
+    }
+
+    mod offside {
+        use super::*;
+        use pretty_assertions::assert_eq;
+
+        fn create_group() -> Document<'static> {
+            sequence(allocate([
+                "foo".into(),
+                indent(allocate(sequence(allocate([
+                    line(),
+                    offside(allocate(r#break(allocate(sequence(allocate([
+                        "bar".into(),
+                        line(),
+                        "baz".into(),
+                    ])))))),
+                ])))),
+            ]))
+        }
+
+        #[test]
+        fn format_flat_offside() {
+            assert_eq!(
+                format_to_string(&flatten(&create_group()), default_options().set_indent(2)),
+                indoc!(
+                    "
+                    foo bar
+                        baz
+                    "
+                )
+                .trim(),
+            );
+        }
+
+        #[test]
+        fn format_broken_offside() {
+            assert_eq!(
+                format_to_string(&r#break(&create_group()), default_options().set_indent(2)),
+                indoc!(
+                    "
+                    foo
+                      bar
+                      baz
+                    "
+                )
+                .trim(),
             );
         }
     }

@@ -44,3 +44,8 @@ pub const fn line() -> Document<'static> {
 pub const fn empty() -> Document<'static> {
     Document::String("")
 }
+
+/// Creates a document indented to a current column.
+pub const fn offside<'a>(document: &'a Document<'a>) -> Document<'a> {
+    Document::Offside(document)
+}
