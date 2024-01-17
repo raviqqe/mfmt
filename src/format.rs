@@ -61,10 +61,6 @@ fn format_document<'a>(
             context.line_suffixes.push(suffix);
         }
         Document::Offside(document) => {
-            #[cfg(test)]
-            extern crate std;
-            #[cfg(test)]
-            std::dbg!(indent, context.column, context.next_indent);
             format_document(
                 context,
                 document,
