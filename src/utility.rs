@@ -58,4 +58,14 @@ mod tests {
         assert!(is_empty(&r#break(&"".into())));
         assert!(!is_empty(&r#break(&"foo".into())));
     }
+
+    #[test]
+    fn check_break() {
+        assert!(!is_broken(&"".into()));
+        assert!(!is_broken(&"foo".into()));
+        assert!(!is_broken(&line()));
+        assert!(!is_broken(&line_suffix("foo")));
+        assert!(!is_broken(&indent(&"foo".into())));
+        assert!(is_broken(&r#break(&"".into())));
+    }
 }
