@@ -68,5 +68,6 @@ mod tests {
         assert!(!is_broken(&indent(&"foo".into())));
         assert!(is_broken(&r#break(&"".into())));
         assert!(!is_broken(&flatten(&"".into())));
+        assert!(!is_broken(&flatten(&r#break(&"".into()))));
     }
 }
