@@ -44,7 +44,7 @@ pub fn is_empty(document: &Document) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{indent, line, line_suffix, r#break};
+    use crate::{flatten, indent, line, line_suffix, r#break};
 
     #[test]
     fn check_empty() {
@@ -67,5 +67,6 @@ mod tests {
         assert!(!is_broken(&line_suffix("foo")));
         assert!(!is_broken(&indent(&"foo".into())));
         assert!(is_broken(&r#break(&"".into())));
+        assert!(!is_broken(&flatten(&"".into())));
     }
 }
