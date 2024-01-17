@@ -103,6 +103,7 @@ mod tests {
     use super::{super::build::*, *};
     use alloc::{boxed::Box, string::String};
     use indoc::indoc;
+    use pretty_assertions::assert_eq;
 
     fn default_options() -> FormatOptions {
         FormatOptions::new(2)
@@ -141,6 +142,7 @@ mod tests {
 
     mod group {
         use super::*;
+        use pretty_assertions::assert_eq;
 
         #[test]
         fn format_flat_group() {
@@ -197,6 +199,7 @@ mod tests {
 
     mod line_suffix {
         use super::*;
+        use pretty_assertions::assert_eq;
 
         #[test]
         fn format_line_suffix_between_strings() {
@@ -349,6 +352,7 @@ mod tests {
 
     mod space {
         use super::*;
+        use pretty_assertions::assert_eq;
 
         #[test]
         fn format_broken_group_with_space() {
