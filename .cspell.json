@@ -2,9 +2,11 @@
   "words": [
     "alloc",
     "clippy",
+    "corge",
     "indoc",
     "lcov",
     "mfmt",
+    "quux",
     "rustfmt",
     "rustup",
     "schemat",

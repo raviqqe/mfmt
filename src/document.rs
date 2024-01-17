@@ -25,6 +25,8 @@ pub enum Document<'a> {
     Line,
     /// A line suffix.
     LineSuffix(&'a str),
+    /// A document indented to a current column.
+    Offside(&'a Document<'a>),
     /// A sequence of documents.
     Sequence(&'a [Document<'a>]),
     /// A string.
