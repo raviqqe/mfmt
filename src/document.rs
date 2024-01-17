@@ -16,8 +16,6 @@
 pub enum Document<'a> {
     /// A document broken into multiple lines.
     Break(bool, &'a Document<'a>),
-    /// A document indented to a current column.
-    Offside(&'a Document<'a>),
     /// An indented document.
     Indent(&'a Document<'a>),
     /// A line.
@@ -27,6 +25,8 @@ pub enum Document<'a> {
     Line,
     /// A line suffix.
     LineSuffix(&'a str),
+    /// A document indented to a current column.
+    Offside(&'a Document<'a>),
     /// A sequence of documents.
     Sequence(&'a [Document<'a>]),
     /// A string.
