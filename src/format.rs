@@ -329,6 +329,26 @@ mod tests {
             }
 
             #[test]
+            fn format_flat_outer_with_broken_inner() {
+                assert_eq!(
+                    format_to_string(
+                        &flatten(&create_groups(r#break)),
+                        default_options().set_indent(2)
+                    ),
+                    indoc!(
+                        "
+                    foo bar
+                        baz
+                        qux
+                          quux
+                          corge
+                    "
+                    )
+                    .trim(),
+                );
+            }
+
+            #[test]
             fn format_broken_outer_with_flat_inner() {
                 assert_eq!(
                     format_to_string(
@@ -342,6 +362,27 @@ mod tests {
                       baz
                       qux quux
                           corge
+                    "
+                    )
+                    .trim(),
+                );
+            }
+
+            #[test]
+            fn format_broken_outer_with_broken_inner() {
+                assert_eq!(
+                    format_to_string(
+                        &r#break(&create_groups(r#break)),
+                        default_options().set_indent(2)
+                    ),
+                    indoc!(
+                        "
+                    foo
+                      bar
+                      baz
+                      qux
+                        quux
+                        corge
                     "
                     )
                     .trim(),
