@@ -47,7 +47,7 @@ fn format_document<'a>(
                 }
 
                 context.next_indent = indent;
-                context.column = 0;
+                context.column = indent;
             } else {
                 context.writer.write_char(' ')?;
                 context.column += 1;
@@ -90,7 +90,6 @@ fn flush(context: &mut Context<impl Write>) -> fmt::Result {
     // Flush an indent lazily.
     for string in repeat(context.space).take(context.next_indent) {
         context.writer.write_str(string)?;
-        context.column = string.len();
     }
 
     // Do not render any indent until the next newline.
@@ -247,7 +246,7 @@ mod tests {
         }
 
         #[test]
-        fn format_flat_offside() {
+        fn format_flat_group() {
             assert_eq!(
                 format_to_string(&flatten(&create_group()), default_options().set_indent(2)),
                 indoc!(
@@ -261,7 +260,7 @@ mod tests {
         }
 
         #[test]
-        fn format_broken_offside() {
+        fn format_broken_group() {
             assert_eq!(
                 format_to_string(&r#break(&create_group()), default_options().set_indent(2)),
                 indoc!(
@@ -273,6 +272,78 @@ mod tests {
                 )
                 .trim(),
             );
+        }
+
+        mod nested {
+            use super::*;
+            use pretty_assertions::assert_eq;
+
+            fn create_groups(
+                inner: for<'a> fn(&'a Document<'a>) -> Document<'a>,
+            ) -> Document<'static> {
+                sequence(allocate([
+                    "foo".into(),
+                    indent(allocate(sequence(allocate([
+                        line(),
+                        offside(allocate(r#break(allocate(sequence(allocate([
+                            "bar".into(),
+                            line(),
+                            "baz".into(),
+                            line(),
+                            inner(allocate(sequence(allocate([
+                                "qux".into(),
+                                indent(allocate(sequence(allocate([
+                                    line(),
+                                    offside(allocate(r#break(allocate(sequence(allocate([
+                                        "quux".into(),
+                                        line(),
+                                        "corge".into(),
+                                    ])))))),
+                                ])))),
+                            ])))),
+                        ])))))),
+                    ])))),
+                ]))
+            }
+
+            #[test]
+            fn format_flat_outer_with_flat_inner() {
+                assert_eq!(
+                    format_to_string(
+                        &flatten(&create_groups(flatten)),
+                        default_options().set_indent(2)
+                    ),
+                    indoc!(
+                        "
+                    foo bar
+                        baz
+                        qux quux
+                            corge
+                    "
+                    )
+                    .trim(),
+                );
+            }
+
+            #[test]
+            fn format_broken_outer_with_flat_inner() {
+                assert_eq!(
+                    format_to_string(
+                        &r#break(&create_groups(flatten)),
+                        default_options().set_indent(2)
+                    ),
+                    indoc!(
+                        "
+                    foo
+                      bar
+                      baz
+                      qux quux
+                          corge
+                    "
+                    )
+                    .trim(),
+                );
+            }
         }
     }
 
