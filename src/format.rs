@@ -1,10 +1,14 @@
+mod state;
+
 use crate::{document::Document, FormatOptions};
 use alloc::{string::ToString, vec, vec::Vec};
 use core::{
     fmt::{self, Write},
     iter::repeat,
 };
+use state::State;
 
+#[derive(Debug)]
 struct Context<'a, W: Write> {
     writer: &'a mut W,
     column: usize,
@@ -26,28 +30,33 @@ pub fn format(document: &Document, mut writer: impl Write, options: FormatOption
         indent: options.indent(),
     };
 
-    format_document(&mut context, document, 0, true)
+    format_document(&mut context, document, Default::default())
 }
 
 fn format_document<'a>(
     context: &mut Context<'a, impl Write>,
     document: &'a Document,
-    indent: usize,
-    broken: bool,
+    state: State,
 ) -> fmt::Result {
     match document {
-        Document::Break(broken, document) => format_document(context, document, indent, *broken)?,
+        Document::Break(broken, document) => {
+            format_document(context, document, state.set_broken(*broken))?
+        }
         Document::Indent(document) => {
-            format_document(context, document, indent + context.indent, broken)?;
+            format_document(
+                context,
+                document,
+                state.set_indent(state.indent() + context.indent),
+            )?;
         }
         Document::Line => {
-            if broken {
+            if state.broken() {
                 for string in context.line_suffixes.drain(..).chain(["\n"]) {
                     context.writer.write_str(string)?;
                 }
 
-                context.next_indent = indent;
-                context.column = indent;
+                context.next_indent = state.indent();
+                context.column = state.indent();
             } else {
                 context.writer.write_char(' ')?;
                 context.column += 1;
@@ -64,13 +73,16 @@ fn format_document<'a>(
             format_document(
                 context,
                 document,
-                if broken { indent } else { context.column },
-                broken,
+                state.set_indent(if state.broken() {
+                    state.indent()
+                } else {
+                    context.column
+                }),
             )?;
         }
         Document::Sequence(documents) => {
             for document in *documents {
-                format_document(context, document, indent, broken)?;
+                format_document(context, document, state)?;
             }
         }
         Document::String(string) => {
