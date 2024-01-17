@@ -61,6 +61,10 @@ fn format_document<'a>(
 
             context.line_suffixes.push(suffix);
         }
+        Document::Offside(document) => {
+            context.next_indent = context.column;
+            format_document(context, document, indent, broken)?;
+        }
         Document::Sequence(documents) => {
             for document in *documents {
                 format_document(context, document, indent, broken)?;
