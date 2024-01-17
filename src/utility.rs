@@ -5,7 +5,7 @@ use super::Document;
 /// Checks if a document is broken into multiple lines.
 pub fn is_broken(document: &Document) -> bool {
     match document {
-        Document::Break(broken, _) => *broken,
+        Document::Break(broken, document) => *broken || is_broken(document),
         Document::Indent(document) | Document::Offside(document) => is_broken(document),
         Document::Sequence(documents) => documents.iter().any(is_broken),
         Document::Line | Document::LineSuffix(_) | Document::String(_) => false,
@@ -44,7 +44,7 @@ pub fn is_empty(document: &Document) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{flatten, indent, line, line_suffix, r#break};
+    use crate::{flatten, indent, line, line_suffix, r#break, sequence};
 
     #[test]
     fn check_empty() {
@@ -66,8 +66,10 @@ mod tests {
         assert!(!is_broken(&line()));
         assert!(!is_broken(&line_suffix("foo")));
         assert!(!is_broken(&indent(&"foo".into())));
-        assert!(is_broken(&r#break(&"".into())));
         assert!(!is_broken(&flatten(&"".into())));
-        assert!(!is_broken(&flatten(&r#break(&"".into()))));
+        assert!(is_broken(&r#break(&"".into())));
+        assert!(is_broken(&r#break(&flatten(&"".into()))));
+        assert!(is_broken(&flatten(&r#break(&"".into()))));
+        assert!(is_broken(&flatten(&sequence(&[r#break(&"".into())]))));
     }
 }
