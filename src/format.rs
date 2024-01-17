@@ -84,10 +84,12 @@ fn format_document<'a>(
 }
 
 fn flush(context: &mut Context<impl Write>) -> fmt::Result {
+    // Flush an indent lazily.
     for string in repeat(context.space).take(context.next_indent) {
         context.writer.write_str(string)?;
     }
 
+    // Do not render any indent until the next newline.
     context.next_indent = 0;
 
     Ok(())
