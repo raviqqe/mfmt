@@ -17,7 +17,7 @@ pub enum Document<'a> {
     /// A document broken into multiple lines.
     Break(bool, &'a Document<'a>),
     /// A document indented to a current column.
-    ColumnIndent(&'a Document<'a>),
+    Offside(&'a Document<'a>),
     /// An indented document.
     Indent(&'a Document<'a>),
     /// A line.
