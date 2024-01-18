@@ -39,7 +39,7 @@ fn format_document<'a>(
     state: State,
 ) -> fmt::Result {
     match document {
-        Document::Break(broken, document) => {
+        Document::Break { broken, document } => {
             format_document(context, document, state.set_broken(*broken))?
         }
         Document::Indent(document) => {
@@ -69,9 +69,15 @@ fn format_document<'a>(
 
             context.line_suffixes.push(suffix);
         }
-        Document::Offside(document) => {
-            format_document(context, document, state.set_indent(context.column))?
-        }
+        Document::Offside { document, soft } => format_document(
+            context,
+            document,
+            state.set_indent(if *soft {
+                context.column.max(state.indent())
+            } else {
+                context.column
+            }),
+        )?,
         Document::Sequence(documents) => {
             for document in *documents {
                 format_document(context, document, state)?;
@@ -243,11 +249,14 @@ mod tests {
                 "foo".into(),
                 indent(allocate(sequence(allocate([
                     line(),
-                    offside(allocate(r#break(allocate(sequence(allocate([
-                        "bar".into(),
-                        line(),
-                        "baz".into(),
-                    ])))))),
+                    offside(
+                        allocate(r#break(allocate(sequence(allocate([
+                            "bar".into(),
+                            line(),
+                            "baz".into(),
+                        ]))))),
+                        false,
+                    ),
                 ])))),
             ]))
         }
@@ -292,23 +301,29 @@ mod tests {
                     "foo".into(),
                     indent(allocate(sequence(allocate([
                         line(),
-                        offside(allocate(r#break(allocate(sequence(allocate([
-                            "bar".into(),
-                            line(),
-                            "baz".into(),
-                            line(),
-                            inner(allocate(sequence(allocate([
-                                "qux".into(),
-                                indent(allocate(sequence(allocate([
-                                    line(),
-                                    offside(allocate(r#break(allocate(sequence(allocate([
-                                        "quux".into(),
+                        offside(
+                            allocate(r#break(allocate(sequence(allocate([
+                                "bar".into(),
+                                line(),
+                                "baz".into(),
+                                line(),
+                                inner(allocate(sequence(allocate([
+                                    "qux".into(),
+                                    indent(allocate(sequence(allocate([
                                         line(),
-                                        "corge".into(),
-                                    ])))))),
+                                        offside(
+                                            allocate(r#break(allocate(sequence(allocate([
+                                                "quux".into(),
+                                                line(),
+                                                "corge".into(),
+                                            ]))))),
+                                            false,
+                                        ),
+                                    ])))),
                                 ])))),
-                            ])))),
-                        ])))))),
+                            ]))))),
+                            false,
+                        ),
                     ])))),
                 ]))
             }
@@ -400,11 +415,14 @@ mod tests {
                         &flatten(&sequence(&[
                             "qux".into(),
                             line(),
-                            offside(&r#break(&sequence(&[
-                                flatten(&create_group()),
-                                line(),
-                                flatten(&create_group())
-                            ])))
+                            offside(
+                                &r#break(&sequence(&[
+                                    flatten(&create_group()),
+                                    line(),
+                                    flatten(&create_group())
+                                ])),
+                                false
+                            )
                         ])),
                         default_options().set_indent(1)
                     ),

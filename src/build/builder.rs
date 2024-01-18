@@ -1,6 +1,4 @@
-use crate::offside;
-
-use super::{flatten, indent, line_suffix, r#break, sequence, Document};
+use super::{flatten, indent, line_suffix, offside, r#break, sequence, Document};
 use alloc::{alloc::Allocator, boxed::Box, str, vec::Vec};
 
 /// Document builder.
@@ -36,8 +34,8 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
     }
 
     /// Creates a document indented to a current column.
-    pub fn offside(&self, value: impl Into<Document<'a>>) -> Document<'a> {
-        offside(self.allocate(value.into()))
+    pub fn offside(&self, value: impl Into<Document<'a>>, soft: bool) -> Document<'a> {
+        offside(self.allocate(value.into()), soft)
     }
 
     /// Creates a sequence of documents.
@@ -94,6 +92,6 @@ mod tests {
     fn build_offside() {
         let builder = Builder::new(Global);
 
-        assert_eq!(builder.offside("foo"), offside(&"foo".into()));
+        assert_eq!(builder.offside("foo", false), offside(&"foo".into(), false));
     }
 }
