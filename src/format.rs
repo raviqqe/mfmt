@@ -70,15 +70,7 @@ fn format_document<'a>(
             context.line_suffixes.push(suffix);
         }
         Document::Offside(document) => {
-            format_document(
-                context,
-                document,
-                if state.broken() {
-                    state
-                } else {
-                    state.set_indent(context.column)
-                },
-            )?;
+            format_document(context, document, state.set_indent(context.column))?
         }
         Document::Sequence(documents) => {
             for document in *documents {
@@ -396,6 +388,33 @@ mod tests {
                         quux
                         corge
                     "
+                    )
+                    .trim(),
+                );
+            }
+
+            #[test]
+            fn format_two_flat_groups() {
+                assert_eq!(
+                    format_to_string(
+                        &flatten(&sequence(&[
+                            "qux".into(),
+                            line(),
+                            offside(&r#break(&sequence(&[
+                                flatten(&create_group()),
+                                line(),
+                                flatten(&create_group())
+                            ])))
+                        ])),
+                        default_options().set_indent(1)
+                    ),
+                    indoc!(
+                        "
+                        qux foo bar
+                                baz
+                            foo bar
+                                baz
+                        "
                     )
                     .trim(),
                 );
