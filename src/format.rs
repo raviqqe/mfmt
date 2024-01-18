@@ -438,6 +438,89 @@ mod tests {
                 );
             }
         }
+
+        mod soft {
+            use super::*;
+            use pretty_assertions::assert_eq;
+
+            #[test]
+            fn format_less_indent() {
+                assert_eq!(
+                    format_to_string(
+                        &flatten(&sequence(&[
+                            "a".into(),
+                            indent(&sequence(&[
+                                line(),
+                                offside(
+                                    &r#break(&sequence(&["b".into(), line(), "c".into(),])),
+                                    true,
+                                ),
+                            ])),
+                        ])),
+                        default_options().set_indent(1)
+                    ),
+                    indoc!(
+                        "
+                    a b
+                      c
+                    "
+                    )
+                    .trim(),
+                );
+            }
+
+            #[test]
+            fn format_equal_indent() {
+                assert_eq!(
+                    format_to_string(
+                        &flatten(&sequence(&[
+                            "a".into(),
+                            indent(&sequence(&[
+                                line(),
+                                offside(
+                                    &r#break(&sequence(&["b".into(), line(), "c".into(),])),
+                                    true,
+                                ),
+                            ])),
+                        ])),
+                        default_options().set_indent(2)
+                    ),
+                    indoc!(
+                        "
+                    a b
+                      c
+                    "
+                    )
+                    .trim(),
+                );
+            }
+
+            #[test]
+            fn format_more_indent() {
+                assert_eq!(
+                    format_to_string(
+                        &flatten(&sequence(&[
+                            "a".into(),
+                            indent(&sequence(&[
+                                line(),
+                                offside(
+                                    &r#break(&sequence(&["b".into(), line(), "c".into(),])),
+                                    true,
+                                ),
+                            ])),
+                        ])),
+                        default_options().set_indent(3)
+                    ),
+                    indoc!(
+                        "
+                    a b
+                       c
+                    "
+                    )
+                    .trim(),
+                );
+            }
+        }
     }
 
     mod space {
