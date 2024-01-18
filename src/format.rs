@@ -280,6 +280,7 @@ mod tests {
                 format_to_string(
                     &r#break(&sequence(&[
                         flatten(&create_group()),
+                        line(),
                         flatten(&create_group())
                     ])),
                     default_options().set_indent(2)
