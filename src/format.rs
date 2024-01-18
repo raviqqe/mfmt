@@ -38,6 +38,10 @@ fn format_document<'a>(
     document: &'a Document,
     state: State,
 ) -> fmt::Result {
+    #[cfg(test)]
+    extern crate std;
+    #[cfg(test)]
+    std::dbg!(context.next_indent, &context.column, state, document);
     match document {
         Document::Break(broken, document) => {
             format_document(context, document, state.set_broken(*broken))?
@@ -275,33 +279,6 @@ mod tests {
         }
 
         #[test]
-        fn format_two_flat_groups() {
-            assert_eq!(
-                format_to_string(
-                    &flatten(&sequence(&[
-                        "qux".into(),
-                        line(),
-                        r#break(&sequence(&[
-                            flatten(&create_group()),
-                            line(),
-                            flatten(&create_group())
-                        ]))
-                    ])),
-                    default_options().set_indent(1)
-                ),
-                indoc!(
-                    "
-                    qux foo bar
-                            baz
-                        foo bar
-                            baz
-                    "
-                )
-                .trim(),
-            );
-        }
-
-        #[test]
         fn format_broken_group() {
             assert_eq!(
                 format_to_string(&r#break(&create_group()), default_options().set_indent(2)),
@@ -422,6 +399,33 @@ mod tests {
                       qux
                         quux
                         corge
+                    "
+                    )
+                    .trim(),
+                );
+            }
+
+            #[test]
+            fn format_two_flat_groups() {
+                assert_eq!(
+                    format_to_string(
+                        &flatten(&sequence(&[
+                            "qux".into(),
+                            line(),
+                            r#break(&sequence(&[
+                                flatten(&create_group()),
+                                line(),
+                                flatten(&create_group())
+                            ]))
+                        ])),
+                        default_options().set_indent(1)
+                    ),
+                    indoc!(
+                        "
+                    qux foo bar
+                            baz
+                        foo bar
+                            baz
                     "
                     )
                     .trim(),
