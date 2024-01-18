@@ -15,7 +15,10 @@
 #[derive(Clone, Debug, PartialEq)]
 pub enum Document<'a> {
     /// A document broken into multiple lines.
-    Break(bool, &'a Document<'a>),
+    Break {
+        broken: bool,
+        document: &'a Document<'a>,
+    },
     /// An indented document.
     Indent(&'a Document<'a>),
     /// A line.
@@ -26,7 +29,13 @@ pub enum Document<'a> {
     /// A line suffix.
     LineSuffix(&'a str),
     /// A document indented to a current column.
-    Offside(&'a Document<'a>),
+    ///
+    /// If it is `soft`, an indent becomes equal to or more than a current
+    /// indent.
+    Offside {
+        document: &'a Document<'a>,
+        soft: bool,
+    },
     /// A sequence of documents.
     Sequence(&'a [Document<'a>]),
     /// A string.

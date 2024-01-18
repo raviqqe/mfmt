@@ -17,17 +17,26 @@ pub const fn line_suffix(string: &str) -> Document {
 
 /// Flattens a document.
 pub const fn flatten<'a>(document: &'a Document<'a>) -> Document<'a> {
-    Document::Break(false, document)
+    Document::Break {
+        broken: false,
+        document,
+    }
 }
 
 /// Breaks a document into multiple lines.
 pub const fn r#break<'a>(document: &'a Document<'a>) -> Document<'a> {
-    Document::Break(true, document)
+    Document::Break {
+        broken: true,
+        document,
+    }
 }
 
 /// Flattens a document if a `condition` is true.
 pub fn flatten_if<'a>(condition: bool, document: &'a Document<'a>) -> Document<'a> {
-    Document::Break(!condition || is_broken(document), document)
+    Document::Break {
+        broken: !condition || is_broken(document),
+        document,
+    }
 }
 
 /// Indents a document.
@@ -46,6 +55,6 @@ pub const fn empty() -> Document<'static> {
 }
 
 /// Creates a document indented to a current column.
-pub const fn offside<'a>(document: &'a Document<'a>) -> Document<'a> {
-    Document::Offside(document)
+pub const fn offside<'a>(document: &'a Document<'a>, soft: bool) -> Document<'a> {
+    Document::Offside { document, soft }
 }
