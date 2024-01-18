@@ -38,10 +38,6 @@ fn format_document<'a>(
     document: &'a Document,
     state: State,
 ) -> fmt::Result {
-    #[cfg(test)]
-    extern crate std;
-    #[cfg(test)]
-    std::dbg!(context.next_indent, &context.column, state, document);
     match document {
         Document::Break(broken, document) => {
             format_document(context, document, state.set_broken(*broken))?
