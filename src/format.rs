@@ -278,19 +278,23 @@ mod tests {
         fn format_two_flat_groups() {
             assert_eq!(
                 format_to_string(
-                    &r#break(&sequence(&[
-                        flatten(&create_group()),
+                    &flatten(&sequence(&[
+                        "qux".into(),
                         line(),
-                        flatten(&create_group())
+                        r#break(&sequence(&[
+                            flatten(&create_group()),
+                            line(),
+                            flatten(&create_group())
+                        ]))
                     ])),
-                    default_options().set_indent(2)
+                    default_options().set_indent(1)
                 ),
                 indoc!(
                     "
-                    foo bar
-                        baz
-                    foo bar
-                        baz
+                    qux foo bar
+                            baz
+                        foo bar
+                            baz
                     "
                 )
                 .trim(),
