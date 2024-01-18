@@ -70,7 +70,7 @@ fn format_document<'a>(
             context.line_suffixes.push(suffix);
         }
         Document::Offside(document) => {
-            format_document(context, document, state.set_indent(context.column))?;
+            format_document(context, document, state.set_indent(context.column))?
         }
         Document::Sequence(documents) => {
             for document in *documents {
