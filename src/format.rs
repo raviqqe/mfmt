@@ -275,6 +275,28 @@ mod tests {
         }
 
         #[test]
+        fn format_two_flat_groups() {
+            assert_eq!(
+                format_to_string(
+                    &r#break(&sequence(&[
+                        flatten(&create_group()),
+                        flatten(&create_group())
+                    ])),
+                    default_options().set_indent(2)
+                ),
+                indoc!(
+                    "
+                    foo bar
+                        baz
+                    foo bar
+                        baz
+                    "
+                )
+                .trim(),
+            );
+        }
+
+        #[test]
         fn format_broken_group() {
             assert_eq!(
                 format_to_string(&r#break(&create_group()), default_options().set_indent(2)),
