@@ -74,15 +74,7 @@ fn format_document<'a>(
             context.line_suffixes.push(suffix);
         }
         Document::Offside(document) => {
-            format_document(
-                context,
-                document,
-                if state.broken() {
-                    state
-                } else {
-                    state.set_indent(context.column)
-                },
-            )?;
+            format_document(context, document, state.set_indent(context.column))?;
         }
         Document::Sequence(documents) => {
             for document in *documents {
@@ -412,11 +404,11 @@ mod tests {
                         &flatten(&sequence(&[
                             "qux".into(),
                             line(),
-                            r#break(&sequence(&[
+                            r#break(&offside(&sequence(&[
                                 flatten(&create_group()),
                                 line(),
                                 flatten(&create_group())
-                            ]))
+                            ])))
                         ])),
                         default_options().set_indent(1)
                     ),
