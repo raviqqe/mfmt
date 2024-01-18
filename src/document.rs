@@ -16,7 +16,7 @@
 pub enum Document<'a> {
     /// A document broken into multiple lines.
     Break {
-        broken: bool,
+        r#break: bool,
         document: &'a Document<'a>,
     },
     /// An indented document.
