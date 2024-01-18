@@ -1,3 +1,5 @@
+use crate::offside;
+
 use super::{flatten, indent, line_suffix, r#break, sequence, Document};
 use alloc::{alloc::Allocator, boxed::Box, str, vec::Vec};
 
@@ -18,12 +20,9 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
         &self.allocator
     }
 
-    /// Creates a sequence of documents.
-    pub fn sequence(
-        &self,
-        values: impl IntoIterator<Item = impl Into<Document<'a>>>,
-    ) -> Document<'a> {
-        sequence(self.allocate_slice(values.into_iter().map(Into::into)))
+    /// Breaks a document into multiple lines.
+    pub fn r#break(&self, value: impl Into<Document<'a>>) -> Document<'a> {
+        r#break(self.allocate(value.into()))
     }
 
     /// Flattens a document.
@@ -36,9 +35,17 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
         indent(self.allocate(value.into()))
     }
 
-    /// Breaks a document into multiple lines.
-    pub fn r#break(&self, value: impl Into<Document<'a>>) -> Document<'a> {
-        r#break(self.allocate(value.into()))
+    /// Creates a document indented to a current column.
+    pub fn offside(&self, value: impl Into<Document<'a>>) -> Document<'a> {
+        offside(self.allocate(value.into()))
+    }
+
+    /// Creates a sequence of documents.
+    pub fn sequence(
+        &self,
+        values: impl IntoIterator<Item = impl Into<Document<'a>>>,
+    ) -> Document<'a> {
+        sequence(self.allocate_slice(values.into_iter().map(Into::into)))
     }
 
     /// Creates a concatenation of strings.
