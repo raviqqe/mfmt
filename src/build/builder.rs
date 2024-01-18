@@ -83,3 +83,17 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
         str::from_utf8(Vec::leak(vec)).expect("utf-8 string")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::offside;
+    use alloc::alloc::Global;
+
+    #[test]
+    fn build_offside() {
+        let builder = Builder::new(Global);
+
+        assert_eq!(builder.offside("foo"), offside(&"foo".into()));
+    }
+}
