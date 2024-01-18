@@ -16,7 +16,7 @@ checksum = "1e186cfbae8084e513daff4240b4797e342f988cecda4fb6c939150f96315fd8"
 
 [[package]]
 name = "mfmt"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "indoc",
  "pretty_assertions",
