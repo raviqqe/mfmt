@@ -404,7 +404,7 @@ mod tests {
                         &flatten(&sequence(&[
                             "qux".into(),
                             line(),
-                            r#break(&offside(&sequence(&[
+                            offside(&r#break(&sequence(&[
                                 flatten(&create_group()),
                                 line(),
                                 flatten(&create_group())
