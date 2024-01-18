@@ -73,11 +73,11 @@ fn format_document<'a>(
             format_document(
                 context,
                 document,
-                state.set_indent(if state.broken() {
-                    state.indent()
+                if state.broken() {
+                    state
                 } else {
-                    context.column
-                }),
+                    state.set_indent(context.column)
+                },
             )?;
         }
         Document::Sequence(documents) => {
