@@ -11,5 +11,5 @@ keywords = ["format", "language"]
 [dependencies]
 
 [dev-dependencies]
-indoc = "2.0.4"
+indoc = "2.0.5"
 pretty_assertions = "1.4.0"
