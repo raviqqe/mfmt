@@ -4,7 +4,7 @@ use crate::{document::Document, FormatOptions};
 use alloc::{string::ToString, vec, vec::Vec};
 use core::{
     fmt::{self, Write},
-    iter::repeat,
+    iter::repeat_n,
 };
 use state::State;
 
@@ -98,7 +98,7 @@ fn format_document<'a>(
 
 fn flush(context: &mut Context<impl Write>) -> fmt::Result {
     // Flush an indent lazily.
-    for string in repeat(context.space).take(context.next_indent) {
+    for string in repeat_n(context.space, context.next_indent) {
         context.writer.write_str(string)?;
     }
 
