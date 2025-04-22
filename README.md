@@ -24,11 +24,13 @@ cargo +nightly add mfmt
 ```rust
 #![feature(allocator_api)]
 
+use bumpalo::Bump;
 use indoc::indoc;
 use mfmt::{Builder, format, FormatOptions, line};
-use std::alloc::Global;
 
-let builder = Builder::new(Global);
+let allocator = Bump::new();
+let builder = Builder::new(&allocator);
+
 let mut string = String::new();
 
 format(
