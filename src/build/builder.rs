@@ -1,5 +1,5 @@
 use super::{Document, r#break, flatten, indent, line_suffix, offside, sequence};
-use alloc::{alloc::Allocator, boxed::Box, str, vec::Vec};
+use allocator_api2::{alloc::Allocator, boxed::Box, vec::Vec};
 
 /// Document builder.
 #[derive(Clone, Debug)]
