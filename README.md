@@ -16,7 +16,7 @@ This library is used in the following projects.
 ## Install
 
 ```sh
-cargo +nightly add mfmt
+cargo add mfmt
 ```
 
 ## Examples
