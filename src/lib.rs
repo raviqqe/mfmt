@@ -1,5 +1,5 @@
 #![doc = include_str!("../README.md")]
-#![feature(allocator_api)]
+#![cfg_attr(feature = "allocator-api", feature(allocator_api))]
 #![no_std]
 
 extern crate alloc;
