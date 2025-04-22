@@ -2,7 +2,7 @@
 
 mod builder;
 
-use super::{utility::is_broken, Document};
+use super::{Document, utility::is_broken};
 pub use builder::Builder;
 
 /// Creates a sequence of documents.

@@ -2,7 +2,7 @@
 name = "mfmt"
 description = "Meta formatter library"
 version = "0.3.10"
-edition = "2021"
+edition = "2024"
 license = "Unlicense"
 repository = "https://github.com/raviqqe/mfmt"
 readme = "./README.md"
