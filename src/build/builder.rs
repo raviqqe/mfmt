@@ -87,12 +87,11 @@ impl<'a, A: Allocator + Clone + 'a> Builder<A> {
 mod tests {
     use super::*;
     use crate::offside;
-    use bumpalo::Bump;
+    use allocator_api2::alloc::Global;
 
     #[test]
     fn build_offside() {
-        let allocator = Bump::new();
-        let builder = Builder::new(&allocator);
+        let builder = Builder::new(Global);
 
         assert_eq!(builder.offside("foo", false), offside(&"foo".into(), false));
     }
