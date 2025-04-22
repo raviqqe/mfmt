@@ -9,7 +9,9 @@ readme = "./README.md"
 keywords = ["format", "language"]
 
 [dependencies]
+allocator-api2 = "0.2.21"
 
 [dev-dependencies]
+bumpalo = { version = "3.17.0", features = ["allocator-api2"] }
 indoc = "2.0.6"
 pretty_assertions = "1.4.1"
