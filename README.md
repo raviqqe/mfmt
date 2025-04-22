@@ -22,8 +22,6 @@ cargo add mfmt
 ## Examples
 
 ```rust
-#![feature(allocator_api)]
-
 use bumpalo::Bump;
 use indoc::indoc;
 use mfmt::{Builder, format, FormatOptions, line};
