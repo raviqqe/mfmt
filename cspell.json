@@ -1,6 +1,7 @@
 {
   "words": [
     "alloc",
+    "bumpalo",
     "clippy",
     "corge",
     "indoc",
