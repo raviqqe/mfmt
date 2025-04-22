@@ -8,9 +8,6 @@ repository = "https://github.com/raviqqe/mfmt"
 readme = "./README.md"
 keywords = ["format", "language"]
 
-[features]
-allocator-api = []
-
 [dependencies]
 allocator-api2 = "0.2.21"
 
