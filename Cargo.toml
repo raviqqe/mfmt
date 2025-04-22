@@ -15,5 +15,6 @@ allocator-api = []
 allocator-api2 = "0.2.21"
 
 [dev-dependencies]
+bumpalo = "3.17.0"
 indoc = "2.0.6"
 pretty_assertions = "1.4.1"
