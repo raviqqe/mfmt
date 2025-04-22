@@ -1,4 +1,4 @@
-use super::{flatten, indent, line_suffix, offside, r#break, sequence, Document};
+use super::{Document, r#break, flatten, indent, line_suffix, offside, sequence};
 use alloc::{alloc::Allocator, boxed::Box, str, vec::Vec};
 
 /// Document builder.

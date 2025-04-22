@@ -1,6 +1,6 @@
 mod state;
 
-use crate::{document::Document, FormatOptions};
+use crate::{FormatOptions, document::Document};
 use alloc::{string::ToString, vec, vec::Vec};
 use core::{
     fmt::{self, Write},
