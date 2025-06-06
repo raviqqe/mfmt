@@ -9,7 +9,7 @@ readme = "./README.md"
 keywords = ["format", "language"]
 
 [dependencies]
-allocator-api2 = "0.2.21"
+allocator-api2 = "0.3.0"
 
 [dev-dependencies]
 bumpalo = { version = "3.18.1", features = ["allocator-api2"] }
