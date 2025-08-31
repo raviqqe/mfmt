@@ -11,7 +11,7 @@ pub const fn sequence<'a>(documents: &'a [Document<'a>]) -> Document<'a> {
 }
 
 /// Creates a line suffix.
-pub const fn line_suffix(string: &str) -> Document {
+pub const fn line_suffix(string: &str) -> Document<'_> {
     Document::LineSuffix(string)
 }
 
