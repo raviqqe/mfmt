@@ -1,6 +1,6 @@
 [package]
 name = "mfmt"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2024"
 description = "Meta formatter library"
 readme = "./README.md"
