@@ -12,6 +12,6 @@ keywords = ["format", "language"]
 allocator-api2 = "0.2.21"
 
 [dev-dependencies]
-bumpalo = { version = "3.20.1", features = ["allocator-api2"] }
+bumpalo = { version = "3.20.2", features = ["allocator-api2"] }
 indoc = "2.0.7"
 pretty_assertions = "1.4.1"
