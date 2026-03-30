@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: raviqqe/cargo-cache@e56278c26e69da71a8d6ffc14271b71db22d77f3 # v1.0.2
+      - uses: raviqqe/cargo-cache@98cf6adfd93fe558bc3ae1735b97f10998f2067f # v1.0.3
       - run: cargo clippy -- -D warnings
   format:
     runs-on: ubuntu-latest
