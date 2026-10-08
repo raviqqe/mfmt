@@ -3,6 +3,7 @@
     "alloc",
     "bumpalo",
     "clippy",
+    "codspeed",
     "corge",
     "indoc",
     "lcov",
