@@ -6,7 +6,7 @@ const SMALL_DOCUMENT_SIZE: usize = 100;
 const LARGE_DOCUMENT_SIZE: usize = 10_000;
 const NESTING_DEPTH: usize = 64;
 
-type BuildDocument = for<'a> fn(&Builder<&'a Bump>, usize) -> Document<'a>;
+type BuildDocument = for<'a> fn(&Builder<&'a Bump>, usize) -> Document<'a, &'a Bump>;
 
 const DOCUMENTS: [(&str, BuildDocument); 5] = [
     ("lines", lines),
@@ -19,32 +19,34 @@ const DOCUMENTS: [(&str, BuildDocument); 5] = [
 fn repeat<'a>(
     builder: &Builder<&'a Bump>,
     size: usize,
-    build_item: impl Fn() -> Document<'a>,
-) -> Document<'a> {
+    build_item: impl Fn() -> Document<'a, &'a Bump>,
+) -> Document<'a, &'a Bump> {
     builder.sequence((0..size).map(|_| builder.sequence([build_item(), line()])))
 }
 
-fn nest<'a>(wrap: impl Fn(Document<'a>) -> Document<'a>) -> Document<'a> {
+fn nest<'a>(
+    wrap: impl Fn(Document<'a, &'a Bump>) -> Document<'a, &'a Bump>,
+) -> Document<'a, &'a Bump> {
     (0..NESTING_DEPTH).fold("foo".into(), |document, _| wrap(document))
 }
 
-fn lines<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a> {
+fn lines<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a, &'a Bump> {
     repeat(builder, size, || "foo".into())
 }
 
-fn flat_groups<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a> {
+fn flat_groups<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a, &'a Bump> {
     repeat(builder, size, || {
         builder.flatten(builder.sequence(["foo".into(), line(), "bar".into()]))
     })
 }
 
-fn line_suffixes<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a> {
+fn line_suffixes<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a, &'a Bump> {
     repeat(builder, size, || {
         builder.sequence(["foo".into(), builder.line_suffixes([" ", "; ", "bar"])])
     })
 }
 
-fn nested_indent<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a> {
+fn nested_indent<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a, &'a Bump> {
     repeat(builder, size.div_ceil(NESTING_DEPTH), || {
         nest(|document| {
             builder.sequence([
@@ -57,7 +59,7 @@ fn nested_indent<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a> {
     })
 }
 
-fn nested_offside<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a> {
+fn nested_offside<'a>(builder: &Builder<&'a Bump>, size: usize) -> Document<'a, &'a Bump> {
     repeat(builder, size.div_ceil(NESTING_DEPTH), || {
         nest(|document| {
             builder.sequence([

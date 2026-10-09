@@ -2,6 +2,7 @@ mod state;
 
 use crate::{FormatOptions, document::Document};
 use alloc::{string::ToString, vec, vec::Vec};
+use allocator_api2::alloc::Allocator;
 use core::{
     fmt::{self, Write},
     iter::repeat_n,
@@ -19,7 +20,11 @@ struct Context<'a, W: Write> {
 }
 
 /// Formats a document.
-pub fn format(document: &Document, mut writer: impl Write, options: FormatOptions) -> fmt::Result {
+pub fn format<A: Allocator>(
+    document: &Document<A>,
+    mut writer: impl Write,
+    options: FormatOptions,
+) -> fmt::Result {
     let space = options.space().to_string();
     let mut context = Context {
         writer: &mut writer,
@@ -33,9 +38,9 @@ pub fn format(document: &Document, mut writer: impl Write, options: FormatOption
     format_document(&mut context, document, Default::default())
 }
 
-fn format_document<'a>(
+fn format_document<'a, A: Allocator>(
     context: &mut Context<'a, impl Write>,
-    document: &'a Document,
+    document: &'a Document<A>,
     state: State,
 ) -> fmt::Result {
     match document {
@@ -79,7 +84,7 @@ fn format_document<'a>(
             }),
         )?,
         Document::Sequence(documents) => {
-            for document in *documents {
+            for document in documents.iter() {
                 format_document(context, document, state)?;
             }
         }
@@ -111,7 +116,8 @@ fn flush(context: &mut Context<impl Write>) -> fmt::Result {
 #[cfg(test)]
 mod tests {
     use super::{super::build::*, *};
-    use alloc::{boxed::Box, string::String};
+    use alloc::string::String;
+    use allocator_api2::boxed::Box;
     use indoc::indoc;
     use pretty_assertions::assert_eq;
 
@@ -119,14 +125,10 @@ mod tests {
         FormatOptions::new(2)
     }
 
-    fn allocate<T>(value: T) -> &'static T {
-        Box::leak(Box::new(value))
-    }
-
     fn create_group() -> Document<'static> {
-        sequence(allocate([
+        sequence(Box::from([
             "{".into(),
-            indent(allocate(sequence(allocate([
+            indent(Box::new(sequence(Box::from([
                 line(),
                 "foo".into(),
                 line(),
@@ -157,14 +159,17 @@ mod tests {
         #[test]
         fn format_flat_group() {
             assert_eq!(
-                format_to_string(&flatten(&create_group()), default_options()),
+                format_to_string(&flatten(Box::new(create_group())), default_options()),
                 "{ foo bar }"
             );
         }
 
         #[test]
         fn format_empty_line_with_indent() {
-            assert_eq!(format_to_string(&indent(&line()), default_options()), "\n");
+            assert_eq!(
+                format_to_string(&indent(Box::new(line())), default_options()),
+                "\n"
+            );
         }
 
         #[test]
@@ -187,12 +192,15 @@ mod tests {
         fn format_unbroken_group_in_broken_group() {
             assert_eq!(
                 format_to_string(
-                    &sequence(&[
+                    &sequence(Box::from([
                         "{".into(),
-                        indent(&sequence(&[line(), flatten(&create_group())])),
+                        indent(Box::new(sequence(Box::from([
+                            line(),
+                            flatten(Box::new(create_group()))
+                        ])))),
                         line(),
                         "}".into(),
-                    ]),
+                    ])),
                     default_options()
                 ),
                 indoc!(
@@ -215,7 +223,12 @@ mod tests {
         fn format_line_suffix_between_strings() {
             assert_eq!(
                 format_to_string(
-                    &sequence(&["{".into(), line_suffix("foo"), "}".into(), line()]),
+                    &sequence(Box::from([
+                        "{".into(),
+                        line_suffix("foo"),
+                        "}".into(),
+                        line()
+                    ])),
                     default_options()
                 ),
                 "{}foo\n",
@@ -226,13 +239,13 @@ mod tests {
         fn format_two_line_suffixes_between_strings() {
             assert_eq!(
                 format_to_string(
-                    &sequence(&[
+                    &sequence(Box::from([
                         "{".into(),
                         line_suffix("foo"),
                         line_suffix("bar"),
                         "}".into(),
                         line()
-                    ]),
+                    ])),
                     default_options()
                 ),
                 "{}foobar\n",
@@ -245,12 +258,12 @@ mod tests {
         use pretty_assertions::assert_eq;
 
         fn create_group() -> Document<'static> {
-            sequence(allocate([
+            sequence(Box::from([
                 "foo".into(),
-                indent(allocate(sequence(allocate([
+                indent(Box::new(sequence(Box::from([
                     line(),
                     offside(
-                        allocate(r#break(allocate(sequence(allocate([
+                        Box::new(r#break(Box::new(sequence(Box::from([
                             "bar".into(),
                             line(),
                             "baz".into(),
@@ -264,7 +277,10 @@ mod tests {
         #[test]
         fn format_flat_group() {
             assert_eq!(
-                format_to_string(&flatten(&create_group()), default_options().set_indent(2)),
+                format_to_string(
+                    &flatten(Box::new(create_group())),
+                    default_options().set_indent(2)
+                ),
                 indoc!(
                     "
                     foo bar
@@ -278,7 +294,10 @@ mod tests {
         #[test]
         fn format_broken_group() {
             assert_eq!(
-                format_to_string(&r#break(&create_group()), default_options().set_indent(2)),
+                format_to_string(
+                    &r#break(Box::new(create_group())),
+                    default_options().set_indent(2)
+                ),
                 indoc!(
                     "
                     foo
@@ -295,24 +314,24 @@ mod tests {
             use pretty_assertions::assert_eq;
 
             fn create_groups(
-                inner: for<'a> fn(&'a Document<'a>) -> Document<'a>,
+                inner: fn(Box<Document<'static>>) -> Document<'static>,
             ) -> Document<'static> {
-                sequence(allocate([
+                sequence(Box::from([
                     "foo".into(),
-                    indent(allocate(sequence(allocate([
+                    indent(Box::new(sequence(Box::from([
                         line(),
                         offside(
-                            allocate(r#break(allocate(sequence(allocate([
+                            Box::new(r#break(Box::new(sequence(Box::from([
                                 "bar".into(),
                                 line(),
                                 "baz".into(),
                                 line(),
-                                inner(allocate(sequence(allocate([
+                                inner(Box::new(sequence(Box::from([
                                     "qux".into(),
-                                    indent(allocate(sequence(allocate([
+                                    indent(Box::new(sequence(Box::from([
                                         line(),
                                         offside(
-                                            allocate(r#break(allocate(sequence(allocate([
+                                            Box::new(r#break(Box::new(sequence(Box::from([
                                                 "quux".into(),
                                                 line(),
                                                 "corge".into(),
@@ -332,7 +351,7 @@ mod tests {
             fn format_flat_outer_with_flat_inner() {
                 assert_eq!(
                     format_to_string(
-                        &flatten(&create_groups(flatten)),
+                        &flatten(Box::new(create_groups(flatten))),
                         default_options().set_indent(2)
                     ),
                     indoc!(
@@ -351,7 +370,7 @@ mod tests {
             fn format_flat_outer_with_broken_inner() {
                 assert_eq!(
                     format_to_string(
-                        &flatten(&create_groups(r#break)),
+                        &flatten(Box::new(create_groups(r#break))),
                         default_options().set_indent(2)
                     ),
                     indoc!(
@@ -371,7 +390,7 @@ mod tests {
             fn format_broken_outer_with_flat_inner() {
                 assert_eq!(
                     format_to_string(
-                        &r#break(&create_groups(flatten)),
+                        &r#break(Box::new(create_groups(flatten))),
                         default_options().set_indent(2)
                     ),
                     indoc!(
@@ -391,7 +410,7 @@ mod tests {
             fn format_broken_outer_with_broken_inner() {
                 assert_eq!(
                     format_to_string(
-                        &r#break(&create_groups(r#break)),
+                        &r#break(Box::new(create_groups(r#break))),
                         default_options().set_indent(2)
                     ),
                     indoc!(
@@ -412,18 +431,18 @@ mod tests {
             fn format_two_flat_groups() {
                 assert_eq!(
                     format_to_string(
-                        &flatten(&sequence(&[
+                        &flatten(Box::new(sequence(Box::from([
                             "qux".into(),
                             line(),
                             offside(
-                                &r#break(&sequence(&[
-                                    flatten(&create_group()),
+                                Box::new(r#break(Box::new(sequence(Box::from([
+                                    flatten(Box::new(create_group())),
                                     line(),
-                                    flatten(&create_group())
-                                ])),
+                                    flatten(Box::new(create_group()))
+                                ]))))),
                                 false
                             )
-                        ])),
+                        ])))),
                         default_options().set_indent(1)
                     ),
                     indoc!(
@@ -447,16 +466,20 @@ mod tests {
             fn format_less_indent() {
                 assert_eq!(
                     format_to_string(
-                        &flatten(&sequence(&[
+                        &flatten(Box::new(sequence(Box::from([
                             "a".into(),
-                            indent(&sequence(&[
+                            indent(Box::new(sequence(Box::from([
                                 line(),
                                 offside(
-                                    &r#break(&sequence(&["b".into(), line(), "c".into(),])),
+                                    Box::new(r#break(Box::new(sequence(Box::from([
+                                        "b".into(),
+                                        line(),
+                                        "c".into(),
+                                    ]))))),
                                     true,
                                 ),
-                            ])),
-                        ])),
+                            ])))),
+                        ])))),
                         default_options().set_indent(1)
                     ),
                     indoc!(
@@ -473,16 +496,20 @@ mod tests {
             fn format_equal_indent() {
                 assert_eq!(
                     format_to_string(
-                        &flatten(&sequence(&[
+                        &flatten(Box::new(sequence(Box::from([
                             "a".into(),
-                            indent(&sequence(&[
+                            indent(Box::new(sequence(Box::from([
                                 line(),
                                 offside(
-                                    &r#break(&sequence(&["b".into(), line(), "c".into(),])),
+                                    Box::new(r#break(Box::new(sequence(Box::from([
+                                        "b".into(),
+                                        line(),
+                                        "c".into(),
+                                    ]))))),
                                     true,
                                 ),
-                            ])),
-                        ])),
+                            ])))),
+                        ])))),
                         default_options().set_indent(2)
                     ),
                     indoc!(
@@ -499,16 +526,20 @@ mod tests {
             fn format_more_indent() {
                 assert_eq!(
                     format_to_string(
-                        &flatten(&sequence(&[
+                        &flatten(Box::new(sequence(Box::from([
                             "a".into(),
-                            indent(&sequence(&[
+                            indent(Box::new(sequence(Box::from([
                                 line(),
                                 offside(
-                                    &r#break(&sequence(&["b".into(), line(), "c".into(),])),
+                                    Box::new(r#break(Box::new(sequence(Box::from([
+                                        "b".into(),
+                                        line(),
+                                        "c".into(),
+                                    ]))))),
                                     true,
                                 ),
-                            ])),
-                        ])),
+                            ])))),
+                        ])))),
                         default_options().set_indent(3)
                     ),
                     indoc!(
